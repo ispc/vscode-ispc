@@ -1,0 +1,5 @@
+﻿[$RootKey$\OpenFolder\Settings\VSWorkspaceSettings\ISPCLanguageExtension]
+@="$PackageFolder$\ISPCLanguageExtensionSettings.json"
+
+[$RootKey$\TextMate\Repositories]
+"ispc"="$PackageFolder$\Grammars"

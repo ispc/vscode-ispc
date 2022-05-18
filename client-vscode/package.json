@@ -1,0 +1,206 @@
+{
+  "name": "ispc",
+  "description": "Intel® Implicit SPMD Program Compiler Language Extension",
+  "author": "Pete Brubaker, Intel®",
+  "license": "MIT",
+  "version": "1.1.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ispc/ispc"
+  },
+  "icon": "images/ispc-icon.png",
+  "publisher": "intel-corporation",
+  "engines": {
+    "vscode": "^1.8.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "activationEvents": [
+    "onLanguage:ispc"
+  ],
+  "main": "./out/src/extension",
+  "extensionKind": [
+    "workspace",
+    "ui"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "ispc",
+        "aliases": [
+          "Intel® Implicit SPMD Program Compiler",
+          "ISPC",
+          "ispc",
+          "simd"
+        ],
+        "extensions": [
+          ".ispc",
+          ".isph"
+        ],
+        "configuration": "./ispc-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "ispc",
+        "scopeName": "source.ispc",
+        "path": "./ispc.tmLanguage"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "ispc",
+        "path": "./ispc-snippets.json"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "ISPC ",
+      "properties": {
+        "ispc.compilerTarget": {
+          "type": "string",
+          "enum": [
+            "sse",
+            "sse2-i32x4",
+            "sse2-i32x8",
+            "sse4-i32x4",
+            "sse4-i32x8",
+            "sse4-i16x8",
+            "sse4-i8x16",
+            "avx1",
+            "avx1-i32x4",
+            "avx1-i32x8",
+            "avx1-i32x16",
+            "avx1-i64x4",
+            "avx2",
+            "avx2-i32x8",
+            "avx2-i32x16",
+            "avx2-i64x4",
+            "avx512knl-i32x16",
+            "avx512skx-i32x16",
+            "neon",
+            "neon-i8x16",
+            "neon-i16x8",
+            "neon-i32x4",
+            "neon-i32x8"
+          ],
+          "default": "host",
+          "description": "The target setting of the compiler used for edit time validation of source files (warnings/errors.)"
+        },
+        "ispc.compilerArchitecture": {
+          "type": "string",
+          "enum": [
+            "x86",
+            "x86-64",
+            "arm",
+            "aarch64"
+          ],
+          "default": "x86-64",
+          "description": "The architecture setting of the compiler used for edit time validation of source files (warnings/errors.)"
+        },
+        "ispc.compilerCPU": {
+          "type": "string",
+          "enum": [
+            "generic",
+            "x86-64",
+            "atom",
+            "bonnell",
+            "core2",
+            "penryn",
+            "corei7",
+            "nehalem",
+            "btver2",
+            "ps4",
+            "corei7-avx",
+            "sandybridge",
+            "core-avx-i",
+            "ivybridge",
+            "core-avx2",
+            "haswell",
+            "broadwell",
+            "knl",
+            "skx",
+            "icelake-client",
+            "icl",
+            "slm",
+            "silvermont",
+            "cortex-a15",
+            "cortex-a9",
+            "cortex-a35",
+            "cortex-a53",
+            "cortex-a57"
+          ],
+          "default": "icelake-client",
+          "description": "The CPU setting of the compiler used for edit time validation of source files (warnings/errors.)"
+        },
+        "ispc.compilerTargetOS": {
+          "type": "string",
+          "enum": [
+            "windows",
+            "linux",
+            "custom_linux",
+            "freebsd",
+            "macos",
+            "android",
+            "ps4"
+          ],
+          "default": "windows",
+          "description": "The target-os (Operating System) setting of the compiler used for edit time validation of source files (warnings/errors.)"
+        },
+        "ispc.compilerPath": {
+          "type": "string",
+          "default": "c:\\bin\\ispc.exe",
+          "description": "The fully qualified path to the compiler used for edit time validation of source files (warnings/errors.)"
+        },
+        "ispc.maxNumberOfProblems": {
+          "type": "number",
+          "default": 100,
+          "description": "Controls the maximum number of problems returned by the server."
+        },
+        "ispc.trace.server": {
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Traces the communication between VSCode and the ISPC language server."
+        }
+      }
+    },
+    "configurationDefaults": {
+      "[ispc]": {
+        "editor.autoClosingBrackets": "always",
+        "editor.autoClosingQuotes": "always",
+        "editor.autoSurround": "brackets"
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "lint": "eslint src --ext ts",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.3",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^13.13.51",
+    "@types/vscode": "^1.8.0",
+    "@typescript-eslint/eslint-plugin": "^2.30.0",
+    "@typescript-eslint/parser": "^2.30.0",
+    "eslint": "^6.8.0",
+    "glob": "^7.1.6",
+    "mocha": "^7.1.2",
+    "typescript": "^3.9.9",
+    "vscode-test": "^1.5.2"
+  },
+  "dependencies": {
+    "vscode-languageclient": "~3.3.0"
+  }
+}

@@ -1,0 +1,25 @@
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011">
+  <Metadata>
+    <Identity Id="ISPCLanguageExtension" Version="1.0" Language="en-US" Publisher="Pete Brubaker" />
+    <DisplayName>ISPC Language Extension</DisplayName>
+    <Description>ISPC Language support.</Description>
+    <License>License.txt</License>
+    <Icon>ispc.png</Icon>
+    <PreviewImage>ispc.png</PreviewImage>
+  </Metadata>
+  <Installation>
+    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[15.0]" />
+  </Installation>
+  <Dependencies>
+    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" Version="[4.5,)" />
+    <Dependency Id="Microsoft.VisualStudio.MPF.15.0" DisplayName="Visual Studio MPF 15.0" Version="[15.0]" />
+  </Dependencies>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.MefComponent" Path="ISPCLanguageExtension.dll" />
+    <Asset Type="Microsoft.VisualStudio.VsPackage" Path="ISPCLanguage.pkgdef" />
+    <Asset Type="Microsoft.VisualStudio.VsPackage" Path="ISPCLanguageExtension.pkgdef" />
+  </Assets>
+  <Prerequisites>
+    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,16.0)" DisplayName="Visual Studio core editor" />
+  </Prerequisites>
+</PackageManifest>

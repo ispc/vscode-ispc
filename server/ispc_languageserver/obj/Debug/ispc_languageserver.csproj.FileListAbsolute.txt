@@ -1,0 +1,14 @@
+C:\projects\depot\users\pbrubake\ispc-languageserver-csharp\server\ispc_languageserver\bin\Debug\ispc_languageserver.exe.config
+C:\projects\depot\users\pbrubake\ispc-languageserver-csharp\server\ispc_languageserver\bin\Debug\ispc_languageserver.exe
+C:\projects\depot\users\pbrubake\ispc-languageserver-csharp\server\ispc_languageserver\bin\Debug\ispc_languageserver.pdb
+C:\projects\depot\users\pbrubake\ispc-languageserver-csharp\server\ispc_languageserver\bin\Debug\LanguageServer.dll
+C:\projects\depot\users\pbrubake\ispc-languageserver-csharp\server\ispc_languageserver\bin\Debug\LanguageServer.pdb
+C:\projects\depot\users\pbrubake\ispc-languageserver-csharp\server\ispc_languageserver\bin\Debug\Matarillo.IO.dll
+C:\projects\depot\users\pbrubake\ispc-languageserver-csharp\server\ispc_languageserver\bin\Debug\Matarillo.IO.pdb
+C:\projects\depot\users\pbrubake\ispc-languageserver-csharp\server\ispc_languageserver\bin\Debug\Newtonsoft.Json.dll
+C:\projects\depot\users\pbrubake\ispc-languageserver-csharp\server\ispc_languageserver\obj\Debug\ispc_languageserver.csprojAssemblyReference.cache
+C:\projects\depot\users\pbrubake\ispc-languageserver-csharp\server\ispc_languageserver\obj\Debug\ispc_languageserver.exe.config
+C:\projects\depot\users\pbrubake\ispc-languageserver-csharp\server\ispc_languageserver\obj\Debug\ispc_languageserver.csproj.CoreCompileInputs.cache
+C:\projects\depot\users\pbrubake\ispc-languageserver-csharp\server\ispc_languageserver\obj\Debug\ispc_languageserver.csproj.CopyComplete
+C:\projects\depot\users\pbrubake\ispc-languageserver-csharp\server\ispc_languageserver\obj\Debug\ispc_languageserver.exe
+C:\projects\depot\users\pbrubake\ispc-languageserver-csharp\server\ispc_languageserver\obj\Debug\ispc_languageserver.pdb

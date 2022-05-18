@@ -1,0 +1,795 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.VisualStudio.Workspace.Extensions</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.Build.BuildActionContext">
+            <summary>
+            BuildActionContext context class
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.Build.BuildActionContext.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.Build.BuildActionContext"/> class.
+            </summary>
+            <param name="command">The path of the process or script to launch (without arguments).</param>
+            <param name="arguments">The arguments to pass to the process.</param>
+            <param name="buildConfiguration">The build configuration context of this build action</param>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.Build.BuildActionContext.#ctor(Microsoft.VisualStudio.Workspace.Extensions.Build.LaunchCommand[],System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.Build.BuildActionContext"/> class.
+            </summary>
+            <param name="launchCommands">Launch commands</param>
+            <param name="buildConfiguration">The build configuration context of this build action</param>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.Build.BuildActionContext.BuildConfiguration">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.Build.BuildIncrementalSettings">
+            <summary>
+            Build Incremental settings
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.Build.BuildIncrementalSettings.Key">
+            <summary>
+            Settings key
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.Build.BuildIncrementalSettings.Enabled">
+            <summary>
+            Enabled property
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.Build.BuildIncrementalSettings.GetSettings(Microsoft.VisualStudio.Workspace.IWorkspace,System.String)">
+            <summary>
+            Return settings from a workspace context
+            </summary>
+            <param name="workspaceContext">Workspace context</param>
+            <param name="scopePath">Scope context path</param>
+            <returns>Settings instance</returns>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.Build.BuildIncrementalSettings.IsBuildIncrementalEnabled(Microsoft.VisualStudio.Workspace.IWorkspace,System.String)">
+            <summary>
+            If the build incremental is enabled
+            </summary>
+            <param name="workspaceContext">Workspace context</param>
+            <param name="scopePath">Scope context path</param>
+            <returns>true if build incremental is enabled for the workspace</returns>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.Build.IExitCodesResult">
+            <summary>
+            Interface to provide access to exit codes
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.Build.IExitCodesResult.ExitCodes">
+            <summary>
+            The Exit codes returned by a batch
+            </summary>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.Build.IProcessLaunchActionContext">
+            <summary>
+            Interface to describe a process launch action context
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.Build.IProcessLaunchActionContext.LaunchCommands">
+            <summary>
+            List of launch commands
+            </summary>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.Build.ISolutionBuildConfigurationContext">
+            <summary>
+            Build configuration context with MSBuild solution context
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.Build.ISolutionBuildConfigurationContext.SolutionBuildConfiguration">
+            <summary>
+            The solution build configuration
+            </summary>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.Build.LaunchCommand">
+            <summary>
+            LaunchCommand class
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.Build.LaunchCommand.#ctor(System.String,System.String,Microsoft.VisualStudio.Workspace.Extensions.Build.LaunchCommandOption,System.String,System.Collections.Generic.IDictionary{System.String,System.String})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.Build.LaunchCommand"/> class.
+            </summary>
+            <param name="command">The path of the process or script to launch (without arguments).</param>
+            <param name="arguments">The arguments to pass to the process.</param>
+            <param name="option">Launch option selected</param>
+            <param name="workingDirectory">Working directory context</param>
+            <param name="environmentVariables">Optional environment variables to pass</param>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.Build.LaunchCommand.Command">
+            <summary>
+            Gets the path of the process or script to launch (without arguments).
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.Build.LaunchCommand.Arguments">
+            <summary>
+            Gets the arguments to pass to the process.
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.Build.LaunchCommand.WorkingDirectory">
+            <summary>
+            The Working directory under which this command is executed
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.Build.LaunchCommand.EnvironmentVariables">
+            <summary>
+            Environment variables to pass into the launch command
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.Build.LaunchCommand.Option">
+            <summary>
+            The launch command option
+            </summary>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.Build.LaunchCommandOption">
+            <summary>
+            Launch command options
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.Build.LaunchCommandOption.None">
+            <summary>
+            Default option is to fail if error
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.Build.LaunchCommandOption.ContinueOnError">
+            <summary>
+            If continue on error is desired
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.Build.LaunchCommandOption.IgnoreError">
+            <summary>
+            Ignore the error
+            </summary>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.Build.ProcessLaunchActionContext">
+            <summary>
+            Describes the context that can start processes based on file context.
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.Build.ProcessLaunchActionContext.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.Build.ProcessLaunchActionContext"/> class.
+            </summary>
+            <param name="command">The path of the process or script to launch (without arguments).</param>
+            <param name="arguments">The arguments to pass to the process.</param>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.Build.ProcessLaunchActionContext.#ctor(Microsoft.VisualStudio.Workspace.Extensions.Build.LaunchCommand[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.Build.ProcessLaunchActionContext"/> class.
+            </summary>
+            <param name="launchCommands">Array of launch commands</param>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.Build.ProcessLaunchActionContext.LaunchCommands">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.ISolutionWorkspaceService">
+            <summary>
+            A Solution workspace service to be available on workspace contexts
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.ISolutionWorkspaceService.SolutionFilePath">
+            <summary>
+            The solution file path
+            </summary>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.ISolutionWorkspaceService2">
+            <summary>
+            A Solution workspace service to be available on workspace contexts
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.ISolutionWorkspaceService2.InvalidProjects">
+            <summary>
+            Gets paths to all the invalid projects in the solution.
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.ISolutionWorkspaceService2.IsProjectFileValid(System.String)">
+            <summary>
+            Checks if the file represents a valid project that can be opened in Visual Studio.
+            </summary>
+            <param name="projectPath">Path to the project file</param>
+            <returns>True, if the project file is valid, false otherwise</returns>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ExportProjectDataProviderAttribute">
+            <summary>
+            ExportProjectDataProviderAttribute class to MEF export MSBuild data providers provider attributes
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ExportProjectDataProviderAttribute.#ctor(System.String,System.String[],Microsoft.VisualStudio.Workspace.ProviderPriority)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ExportProjectDataProviderAttribute"/> class.
+            </summary>
+            <param name="type">The unique type for this IProjectDataProviderMetadata</param>
+            <param name="supportedFileExtensions">The supported file extension</param>
+            <param name="priority">File scanner priority</param>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ExportProjectDataProviderAttribute.OptionFlagsInternal">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.IMSBuildProjectDataServiceFactory">
+            <summary>
+            Interface IMSBuildProjectDataServiceFactory
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.IMSBuildProjectDataServiceFactory.GetMSBuildProjectDataService(Microsoft.VisualStudio.Workspace.IWorkspace,System.String,System.String,System.Collections.Generic.IDictionary{System.String,System.String})">
+            <summary>
+            Gets the MSBuild project data service for a particular configuration.
+            <para>If the parameter passed is null, then the service for active configuration is returned.</para>
+            </summary>
+            <param name="workspace">Workspace instance</param>
+            <param name="projectFile">Path of the project file, possibly relative to the solution file</param>
+            <param name="projectConfiguration">Project configuration</param>
+            <param name="projectProperties">Project properties</param>
+            <returns>MSBuild project data service instance</returns>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.IProjectDataProvider">
+            <summary>
+            IProjectDataProvider interface
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.IProjectDataProvider.GetProjectData(Microsoft.Build.Evaluation.Project)">
+            <summary>
+            Gets project data of interest to the provider
+            </summary>
+            <param name="project">The evaluated MSBuild project</param>
+            <returns>Collection of <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectData"/> objects</returns>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.IProjectDataProviderMetadata">
+            <summary>
+            IProjectDataProviderMetadata metadata
+            </summary>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.IMSBuildProjectDataService">
+            <summary>
+            Interface IMSBuildProjectDataService
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.IMSBuildProjectDataService.GetProjectProperty(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Gets an instance of <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectPropertyData"/> matching the property name.
+            </summary>
+            <param name="propertyName">Name of the project property</param>
+            <param name="cancellationToken">Optional cancellation token</param>
+            <returns><see cref="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectPropertyData"/>, if one exists</returns>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.IMSBuildProjectDataService.GetProjectItems(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Gets a collection of <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectItemData"/> instances matching the item type.
+            </summary>
+            <param name="itemType">Type of the project item</param>
+            <param name="cancellationToken">Optional cancellation token</param>
+            <returns>Collection of matching <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectItemData"/> instances</returns>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ISolutionService">
+            <summary>
+            Workspace service for MSBuild solution files
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ISolutionService.GetProjectConfigurationAsync(System.String,System.String,System.String)">
+            <summary>
+            Return a valid project configuration from a solution configuration
+            </summary>
+            <param name="solutionFile">Valid path to a solution file</param>
+            <param name="projectFile">Path to an MSBuild project</param>
+            <param name="solutionBuildConfiguration">The solution configuration</param>
+            <returns>The project configuration or empty if no match found</returns>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectItemData">
+            <summary>
+            ProjectItem data in MsBuild projects
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectItemData.ItemType">
+            <summary>
+            Type of the project item
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectItemData.EvaluatedInclude">
+            <summary>
+            Evaluated include of the project item
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectItemData.Metadata">
+            <summary>
+            Metadata of the project item
+            </summary>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectPropertyData">
+            <summary>
+            Project property data in MsBuild projects
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectPropertyData.Name">
+            <summary>
+            Name of the project property
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectPropertyData.EvaluatedValue">
+            <summary>
+            Evaluated value of the project property
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectPropertyData.op_Equality(Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectPropertyData,Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectPropertyData)">
+            <summary>
+            Operator ==
+            </summary>
+            <param name="propertyData1">Data 1</param>
+            <param name="propertyData2">Data 2</param>
+            <returns>True if are the same</returns>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectPropertyData.op_Inequality(Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectPropertyData,Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectPropertyData)">
+            <summary>
+            Operator !=
+            </summary>
+            <param name="propertyData1">Data 1</param>
+            <param name="propertyData2">Data 2</param>
+            <returns>True if are different</returns>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectPropertyData.Equals(Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectPropertyData)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectPropertyData.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildProjectPropertyData.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectData">
+            <summary>
+            Project Data structure to return MSBuild type data
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectData.Type">
+            <summary>
+            Type of the data
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectData.Name">
+            <summary>
+            Name of the data
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectData.Content">
+            <summary>
+            Content of the data
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectData.Target">
+            <summary>
+            Target of this data (additional dimension for the data)
+            </summary>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildSettings">
+            <summary>
+            MSBuild settings
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildSettings.Key">
+            <summary>
+            MSBuildSettings root settings
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildSettings.ToolsVersion">
+            <summary>
+            Tools version
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildSettings.Verbosity">
+            <summary>
+            Verbosity property
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildSettings.GetSettings(Microsoft.VisualStudio.Workspace.IWorkspace)">
+            <summary>
+            Return the MSBuild settings from a IWorkspace
+            </summary>
+            <param name="workspaceContext">The workspace context</param>
+            <returns>MSBuild settings structure</returns>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.MSBuildSettings.GetSettings(Microsoft.VisualStudio.Workspace.IWorkspace,System.String)">
+            <summary>
+            Return the MSBuild settings from a IWorkspace
+            </summary>
+            <param name="workspaceContext">The workspace context</param>
+            <param name="scopePath">Scope path for the settings</param>
+            <returns>MSBuild settings structure</returns>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectBaseTypesInSolution">
+            <summary>
+            Collection of project base types for projects in the solution file.
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectBaseTypesInSolution.ProjectBaseTypesName">
+            <summary>
+            Property to identify project types.
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectBaseTypesInSolution.TypeGuid">
+            <summary>
+            Unique type identifier. Not related to a project's types.
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectBaseTypesInSolution.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectBaseTypesInSolution"/> class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectBaseTypesInSolution.Types">
+            <summary>
+            Project type and flavor GUIDs. Keys are relative paths to projects
+            and values are the base type per project from the solution file.
+            </summary>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectConfigurationInSolution">
+            <summary>
+            MSBuild ProjectConfigurationInSolution
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectConfigurationInSolution.ConfigurationName">
+            <summary>
+            ConfigurationName property
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectConfigurationInSolution.FullName">
+            <summary>
+            FullName property
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectConfigurationInSolution.IncludeInBuild">
+            <summary>
+            IncludeInBuild property
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectConfigurationInSolution.PlatformName">
+            <summary>
+            PlatformName property
+            </summary>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectInSolution">
+            <summary>
+            MSBuild ProjectInSolution
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectInSolution.Path">
+            <summary>
+            Relative path to workspace
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectInSolution.Dependencies">
+            <summary>
+            Dependencies property
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectInSolution.ParentProjectGuid">
+            <summary>
+            ParentProjectGuid property
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectInSolution.ProjectConfigurations">
+            <summary>
+            ProjectConfigurations property
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectInSolution.ProjectGuid">
+            <summary>
+            ProjectGuid property
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectInSolution.ProjectName">
+            <summary>
+            ProjectName property
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectInSolution.ProjectType">
+            <summary>
+            ProjectType property
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectInSolution.RelativePath">
+            <summary>
+            RelativePath property
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectInSolution.GetAbsolutePath(Microsoft.VisualStudio.Workspace.IWorkspace)">
+            <summary>
+            Get the absolute path of the project
+            </summary>
+            <param name="workspaceContext">The workspace context where the project belong</param>
+            <returns>Absolute path</returns>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectFlavorTypes">
+            <summary>
+            Project types and flavors for a project.
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectFlavorTypes.ProjectTypeGuidsPropertyName">
+            <summary>
+            Property to identify project types.
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectFlavorTypes.TypeGuid">
+            <summary>
+            Unique type identifier. Not related to a project's types.
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectFlavorTypes.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectFlavorTypes"/> class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.ProjectFlavorTypes.Guids">
+            <summary>
+            Project type and flavor GUIDs
+            </summary>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.SolutionConfigurationInSolution">
+            <summary>
+            MSBuild SolutionConfigurationInSolution
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.SolutionConfigurationInSolution.ConfigurationName">
+            <summary>
+            ConfigurationName property
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.SolutionConfigurationInSolution.FullName">
+            <summary>
+            FullName property
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.SolutionConfigurationInSolution.PlatformName">
+            <summary>
+            PlatformName property
+            </summary>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.SolutionFile">
+            <summary>
+            MSBuild SolutionFile
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.SolutionFile.ProjectsByGuid">
+            <summary>
+            ProjectsByGuid property
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.MSBuild.SolutionFile.SolutionConfigurations">
+            <summary>
+            SolutionConfigurations property
+            </summary>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.SolutionWorkspaceProviderOptions">
+            <summary>
+            Option flags defined to allow providers to expose it under the solution workspace
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.SolutionWorkspaceProviderOptions.Supported">
+            <summary>
+            If this provider is supported when working with solution workspaces
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.SolutionWorkspaceProviderOptions.OnlySolutionWorkspace">
+            <summary>
+            Only intended to be supported in Solution workspaces
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.SolutionWorkspaceProviderOptions.SupportedAndOnlySolutionWorkspace">
+            <summary>
+            Supported but only on Solution workspace
+            </summary>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.Indexing.ExportProjectFilesAttribute">
+            <summary>
+            Exports an <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.Indexing.IProjectFilesProvider"/> to the MEF catalog
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.Indexing.ExportProjectFilesAttribute.#ctor(System.String,System.String[],Microsoft.VisualStudio.Workspace.ProviderPriority)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.Indexing.ExportProjectFilesAttribute"/> class.
+            </summary>
+            <param name="type">type of provider</param>
+            <param name="supportedFileExtensions">Supported extension for this provider</param>
+            <param name="priority">Priority</param>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.Indexing.ExportProjectFilesAttribute.OptionFlagsInternal">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.Indexing.IManagedIntellisenseService">
+            <summary>
+            IManagedIntellisenseService interface provides service for managed intellisense data
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.Indexing.IManagedIntellisenseService.GetIntellisenseForSolutionAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get intellisense data for a solution file
+            </summary>
+            <param name="solutionFilePath">The solution file path</param>
+            <param name="solutionBuildConfiguration">The solution configuration</param>
+            <param name="cancellationToken">A cancellation token</param>
+            <returns>Dictionary with project and command line info</returns>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.Indexing.IManagedIntellisenseService.GetMSBuildCommandLineArgsAsync(System.String,System.String,System.Collections.Generic.IDictionary{System.String,System.String},System.Threading.CancellationToken)">
+            <summary>
+            Get the Managed command line arguments for an MSBuild project
+            </summary>
+            <param name="msbuildProjectPath">MSBuild project file path</param>
+            <param name="projectBuildConfiguration">The project configuration</param>
+            <param name="globalProperties">Optional properties</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The Managed Command line info</returns>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.Indexing.IManagedIntellisenseService2">
+            <summary>
+            <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.Indexing.IManagedIntellisenseService2"/>
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.Indexing.IManagedIntellisenseService2.GetIntellisenseForSolutionAsync(System.String,System.Collections.Immutable.ImmutableHashSet{System.String},System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get intellisense data for a solution file excluding certain projects
+            </summary>
+            <param name="solutionFilePath">The solution file path</param>
+            <param name="excludedProjects">The full paths of excluded projects</param>
+            <param name="solutionBuildConfiguration">The solution configuration</param>
+            <param name="cancellationToken">A cancellation token</param>
+            <returns>Dictionary with project and command line info</returns>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.Indexing.IProjectFilesMetadata">
+            <summary>
+            Metadata definition for interface IProjectFilesProvider
+            </summary>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.Indexing.IProjectFilesProvider">
+            <summary>
+            IProjectFilesProvider interface
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.Indexing.IProjectFilesProvider.GetProjectFiles(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get the project files
+            </summary>
+            <param name="projectPath">Path to a project File</param>
+            <param name="cancellationToken">A Cancellation token</param>
+            <returns>Array of FileSystemInfo</returns>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.ManagedProjectContext">
+            <summary>
+            Describes Roslyn-based language service projects.
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.ManagedProjectContext.ContextType">
+            <summary>
+            Identifies a Roslyn project context.
+            </summary>
+            <value>D9212C5D-975A-49E6-A753-2F586BFBF077</value>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.ManagedProjectContext.ContextTypeGuid">
+            <summary>
+            Identifies a Roslyn project context.
+            </summary>
+            <value>{D9212C5D-975A-49E6-A753-2F586BFBF077}</value>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.ManagedProjectContext.#ctor(System.String,System.String,System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.ManagedProjectContext"/> class.
+            </summary>
+            <param name="projectFileName">The name of the project (the file name without extension).</param>
+            <param name="language">A value from the managed LanguageNames.</param>
+            <param name="commandLineArgs">The command line arguments that would be passed to the compiler.</param>
+            <param name="projectDirectory">The workspace-relative path to the project directory.</param>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.ManagedProjectContext.ProjectFileName">
+            <summary>
+            Gets the file name of the project without directory or extension.
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.ManagedProjectContext.Language">
+            <summary>
+            Gets the language of this project.
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.ManagedProjectContext.CommandLineArgs">
+            <summary>
+            Gets the command line arguments passed to the compiler.
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.ManagedProjectContext.ProjectDirectory">
+            <summary>
+            Gets the workspace-relative path to the project directory.
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.ManagedProjectContext.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Extensions.ManagedCommandLineInfo">
+            <summary>
+            Describes the command line arguments
+            </summary>
+        </member>
+        <member name="F:Microsoft.VisualStudio.Workspace.Extensions.ManagedCommandLineInfo.Empty">
+            <summary>
+            An empty ManagedCommandLineInfo
+            </summary>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.ManagedCommandLineInfo.#ctor(System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.ManagedCommandLineInfo"/> struct.
+            </summary>
+            <param name="commandLineArgs">The full command line args</param>
+            <param name="projectReferences">The project references</param>
+            <param name="targetPath">The target path</param>
+            <param name="configuration">The configuration</param>
+        </member>
+        <member name="M:Microsoft.VisualStudio.Workspace.Extensions.ManagedCommandLineInfo.#ctor(System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.Collections.Generic.IReadOnlyCollection{System.String},System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.VisualStudio.Workspace.Extensions.ManagedCommandLineInfo"/> struct.
+            </summary>
+            <param name="commandLineArgs">The full command line args</param>
+            <param name="projectReferences">The project references</param>
+            <param name="targetPath">The target path</param>
+            <param name="configuration">The configuration</param>
+            <param name="buildErrors">The design time build errors</param>
+            <param name="buildException">The design time build exception</param>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.ManagedCommandLineInfo.CommandLineArgs">
+            <summary>
+            Gets the command line args.
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.ManagedCommandLineInfo.ProjectReferences">
+            <summary>
+            Gets the project references.
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.ManagedCommandLineInfo.Configuration">
+            <summary>
+            Gets the build configuration.
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.ManagedCommandLineInfo.TargetPath">
+            <summary>
+            Gets the target path.
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.ManagedCommandLineInfo.BuildErrors">
+            <summary>
+            Gets the design time build errors.
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Extensions.ManagedCommandLineInfo.BuildException">
+            <summary>
+            Gets the design time build exception.
+            </summary>
+        </member>
+        <member name="T:Microsoft.VisualStudio.Workspace.Strings">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Strings.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Strings.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Strings.PathMustBeRooted">
+            <summary>
+              Looks up a localized string similar to Path must be rooted..
+            </summary>
+        </member>
+        <member name="P:Microsoft.VisualStudio.Workspace.Strings.PathMustNotBeRooted">
+            <summary>
+              Looks up a localized string similar to Path must be relative..
+            </summary>
+        </member>
+    </members>
+</doc>
