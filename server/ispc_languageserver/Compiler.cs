@@ -95,8 +95,16 @@ namespace ISPCLanguageServer
                     compilerProc.StartInfo = _startInfo;
 
                     // compile the file
-                    _logger.Info("[ispc] - compiler started.");
-                    compilerProc.Start();
+                    try
+                    {
+                        compilerProc.Start();
+                        _logger.Info("[ispc] - compiler started.");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Info("[ispc] - unable to start compiler: "+ ex.Message);
+                        return;
+                    }
 
                     // write the file to stdin
                     compilerProc.StandardInput.WriteLine(doc.text);
