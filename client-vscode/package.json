@@ -177,12 +177,7 @@
         "editor.autoClosingQuotes": "always",
         "editor.autoSurround": "brackets"
       }
-    },
-    "breakpoints": [
-      {
-        "language": "ispc"
-      }
-    ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
