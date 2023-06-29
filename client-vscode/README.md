@@ -24,6 +24,13 @@ These features are activated in files with the extensions "\*.ispc" and '\*.isph
 
 ## Release Notes:
 
+### 1.2.0
+
+* Added support for breakpoints and debugging with C/C++ Extension and MSVC on Windows
+* Added Sapphire Rapids as option for Compiler CPU and Target
+* Removed autosurround for '<' and '>'
+* Fix for repreated crashes when compiler is not found
+
 ### 1.1.0
 
 * Added support for remote editing and GitHub Codespaces.  Currently this extension is defined as a "ui" extension, and does not run on the server.
@@ -41,6 +48,7 @@ These features are activated in files with the extensions "\*.ispc" and '\*.isph
 
 ### Author:
 Pete Brubaker, Intel&reg;
+Ethan Davis, Intel&reg;
 
 pete.brubaker@intel.com
 

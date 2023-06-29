@@ -94,14 +94,6 @@ namespace ISPCLanguageServer
                     Process compilerProc = new Process();
                     compilerProc.StartInfo = _startInfo;
 
-                    // Get the doc FileName
-                    string fileName = Path.GetFileNameWithoutExtension(doc.uri.LocalPath);
-                    string localPath = Uri.UnescapeDataString(new Uri(doc.uri.ToString()).LocalPath);
-
-                    // Set names for output files
-                    compilerProc.StartInfo.Arguments += $"-h {fileName}.h -o {fileName}.ispc.obj \"{localPath}\"";
-                    _logger.Info(compilerProc.StartInfo.Arguments);
-
                     // compile the file
                     try
                     {
@@ -111,11 +103,12 @@ namespace ISPCLanguageServer
                     catch (Exception ex)
                     {
                         _logger.Info("[ispc] - unable to start compiler: "+ ex.Message);
+                        _logger.Info("[ispc] - For realtime error reporting, ensure location to ISPC is on PATH.");
                         return;
                     }
 
                     // write the file to stdin
-                    //compilerProc.StandardInput.WriteLine(doc.text);
+                    compilerProc.StandardInput.WriteLine(doc.text);
 
                     // flush and close stdin
                     compilerProc.StandardInput.Flush();
@@ -147,7 +140,6 @@ namespace ISPCLanguageServer
                     // close the process
                     compilerProc.Close();
                     compilerProc = null;
-                    UpdateStartInfo();
                 }
             }
         }
@@ -251,7 +243,7 @@ namespace ISPCLanguageServer
         private static void UpdateStartInfo()
         {
             _startInfo = new ProcessStartInfo(_compilerPath);
-            _startInfo.Arguments = $"--arch={_arch} --cpu={_CPU} --target={_target} --target-os={_TargetOS} -O0 -g ";
+            _startInfo.Arguments = $"--arch={_arch} --cpu={_CPU} --target={_target} --target-os={_TargetOS} -O3 -o - -";
             _startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             _startInfo.UseShellExecute = false;
             _startInfo.RedirectStandardError = true;
