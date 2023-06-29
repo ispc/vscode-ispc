@@ -1,9 +1,9 @@
 {
   "name": "ispc",
   "description": "Intel® Implicit SPMD Program Compiler Language Extension",
-  "author": "Pete Brubaker, Intel®",
+  "author": "Pete Brubaker, Ethan Davis, Intel®",
   "license": "MIT",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/ispc/ispc"
@@ -78,6 +78,11 @@
             "avx2-i32x8",
             "avx2-i32x16",
             "avx2-i64x4",
+            "avx512spr-x4", 
+            "avx512spr-x8",
+            "avx512spr-x16",
+            "avx512spr-x32",
+            "avx512spr-x64",
             "avx512knl-i32x16",
             "avx512skx-i32x16",
             "neon",
@@ -130,7 +135,9 @@
             "cortex-a9",
             "cortex-a35",
             "cortex-a53",
-            "cortex-a57"
+            "cortex-a57",
+            "sapphirerapids",
+            "spr"
           ],
           "default": "icelake-client",
           "description": "The CPU setting of the compiler used for edit time validation of source files (warnings/errors.)"
@@ -177,7 +184,12 @@
         "editor.autoClosingQuotes": "always",
         "editor.autoSurround": "brackets"
       }
-    }
+    },
+    "breakpoints": [
+      {
+        "language":"ispc"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
