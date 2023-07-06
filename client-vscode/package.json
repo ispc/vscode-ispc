@@ -158,7 +158,7 @@
         },
         "ispc.compilerPath": {
           "type": "string",
-          "default": "c:\\bin\\ispc.exe",
+          "default": "ispc",
           "description": "The fully qualified path to the compiler used for edit time validation of source files (warnings/errors.)"
         },
         "ispc.maxNumberOfProblems": {
