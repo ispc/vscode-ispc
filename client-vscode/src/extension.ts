@@ -6,7 +6,7 @@
 
 import * as path from 'path';
 import * as os from 'os';
-import { workspace, ExtensionContext } from 'vscode';
+import { workspace, ExtensionContext, window, commands } from 'vscode';
 
 import {
 	LanguageClient,
@@ -46,7 +46,15 @@ export function activate(context: ExtensionContext) {
 			configurationSection: 'ispc',
 			// Notify the server about file changes to '.clientrc files contain in the workspace
 			fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
+		},
+		initializationOptions: {
+			capabilities: {
+				executeCommandProvider: {
+					commands: ['ispc.compile']
+				}
+			}
 		}
+
 	};
 	
 	// Create the language client and start the client.
@@ -56,7 +64,23 @@ export function activate(context: ExtensionContext) {
 		serverOptions,
 		clientOptions
 	);
-	
+
+	let disposable = commands.registerCommand('ispc.compileDebug', () => {
+		window.activeTextEditor.document.save().then(() => {
+			const documentUri = window.activeTextEditor.document.uri;
+			const args: any[] = [documentUri];
+			client
+				.sendRequest<boolean>('workspace/executeCommand', {
+					"command": "CompileDebug", 
+					"arguments": args 
+				})
+				.then((response: boolean) => {
+				}, (error: any) => {
+					window.showErrorMessage(`Compilation request failed: ${error}`);
+				});
+		});
+	});
+
 	// Start the client. This will also launch the server
 	client.start();
 }
