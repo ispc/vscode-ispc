@@ -144,6 +144,54 @@ namespace ISPCLanguageServer
             }
         }
 
+        public static void CompileDebug(string fPath)
+        {
+            // create a new process
+            Process compilerProc = new Process();
+
+            // Get the doc FileName
+            string fileName = Path.GetFileNameWithoutExtension(fPath);
+
+            _startInfo.Arguments = $"--arch={_arch} --cpu={_CPU} --target={_target} --target-os={_TargetOS} -O0 -g -o {fileName}.ispc.obj -h {fileName}.h \"{fPath}\"";
+            compilerProc.StartInfo = _startInfo;
+
+            _logger.Info("ispc "+_startInfo.Arguments);
+
+            // compile the file
+            try
+            {
+                compilerProc.Start();
+                _logger.Info("[ispc] - compiler started.");
+            }
+            catch (Exception ex)
+            {
+                _logger.Info("[ispc] - unable to start compiler: "+ ex.Message);
+                _logger.Info("[ispc] - Ensure location to ISPC is on PATH.");
+                return;
+            }
+
+            // wait for exit
+            compilerProc.WaitForExit();
+
+            // collect the output data
+            string stderr = compilerProc.StandardError.ReadToEnd();
+            string stdout = compilerProc.StandardOutput.ReadToEnd();
+
+            // completed successfully
+            _logger.Info("[ispc] - compiler completed.");
+
+            // if the compiler reported errors show them in the output
+            if (stderr.Length > 1)
+            {
+                _logger.Error("[ispc] - stderr - " + stderr + "\n");
+            }
+
+            // close the process
+            compilerProc.Close();
+            compilerProc = null;
+            UpdateStartInfo();
+        }
+
         private class DocumentComparer : IEqualityComparer<TextDocumentItem>
         {
             public bool Equals(TextDocumentItem x, TextDocumentItem y)
