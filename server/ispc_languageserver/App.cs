@@ -544,6 +544,18 @@ namespace ISPCLanguageServer
             return Result<SignatureHelp, ResponseError>.Success(test);
         }
 
+        // Handle custom commands from client
+        protected override Result<dynamic, ResponseError> ExecuteCommand(ExecuteCommandParams @params)
+        {
+            switch(@params.command)
+            {
+                case "CompileDebug":
+                    Compiler.CompileDebug(@params.arguments[0].fsPath.ToString());
+                    break;
+            }
+            return Result<dynamic, ResponseError>.Success("Success");
+        }
+
         protected override VoidResult<ResponseError> Shutdown()
         {
             Logger.Instance.Shutdown();
