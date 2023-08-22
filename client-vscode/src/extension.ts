@@ -25,13 +25,8 @@ export function activate(context: ExtensionContext) {
     // The server is implemented in node
     let serverExe = "dotnet";
 
-    // let serverExe = "D:\\Development\\Omnisharp\\csharp-language-server-protocol\\sample\\SampleServer\\bin\\Debug\\netcoreapp2.0\\win7-x64\\SampleServer.exe";
-    // let serverExe = "D:/Development/Omnisharp/omnisharp-roslyn/artifacts/publish/OmniSharp.Stdio.Driver/win7-x64/OmniSharp.exe";
-    // The debug options for the server
-    // let debugOptions = { execArgv: ['-lsp', '-d' };5
-
-    const extensionPath = context.extensionPath;
     // Construct the path to the ispc_languageserver.dll
+    const extensionPath = context.extensionPath;
     const serverDllPath = path.join(extensionPath, 'server', 'ispc_languageserver.dll');
 
     // If the extension is launched in debug mode then the debug server options are used
@@ -51,34 +46,18 @@ export function activate(context: ExtensionContext) {
             runtime: "",
         },
     };
-    // let time = 100;
-    // let serverOptions = async () => {
-    //     await new Promise((r) => setTimeout(r, time));
-    //     time = 10000;
-    //     const [reader, writer] = createServerPipeTransport("\\\\.\\pipe\\" + "samplepipe");
-    //     return {
-    //         reader,
-    //         writer,
-    //     };
-    // };
 
     // Options to control the language client
     let clientOptions: LanguageClientOptions = {
-        // Register the server for plain text documents
+        // Register the server for ispc documents
         documentSelector: [
             {
-                pattern: "**/*.cs",
-            },
-            {
-                pattern: "**/*.csx",
-            },
-            {
-                pattern: "**/*.cake",
+                pattern: "**/*.ispc",
             },
         ],
         progressOnInitialization: true,
         synchronize: {
-            // Synchronize the setting section 'languageServerExample' to the server
+            // Synchronize the setting section 'ispc' to the server
             configurationSection: "ispc",
             fileEvents: workspace.createFileSystemWatcher("**/*.ispc"),
         },

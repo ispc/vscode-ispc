@@ -170,7 +170,7 @@
                         "messages",
                         "verbose"
                     ],
-                    "default": "off",
+                    "default": "verbose",
                     "description": "Traces the communication between VSCode and the ISPC language server."
                 }
             }
