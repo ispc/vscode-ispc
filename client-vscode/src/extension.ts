@@ -2,92 +2,95 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
-'use strict';
+// tslint:disable
+"use strict";
 
-import * as path from 'path';
-import * as os from 'os';
-import { workspace, ExtensionContext, window, commands } from 'vscode';
+import * as path from "path";
 
+import { workspace, Disposable, ExtensionContext } from "vscode";
 import {
-	LanguageClient,
-	LanguageClientOptions,
-	ServerOptions,
-	ExecutableOptions,
-	Executable
-} from 'vscode-languageclient';
-
-let client: LanguageClient;
+    LanguageClient,
+    LanguageClientOptions,
+    SettingMonitor,
+    ServerOptions,
+    TransportKind,
+    InitializeParams,
+    StreamInfo,
+    createServerPipeTransport,
+} from "vscode-languageclient/node";
+import { Trace, createClientPipeTransport } from "vscode-jsonrpc/node";
+import { createConnection } from "net";
 
 export function activate(context: ExtensionContext) {
+    // The server is implemented in node
+    let serverExe = "dotnet";
 
-	// The server is implemented in C#
-	let serverCommand = context.asAbsolutePath(path.join('server', 'ispc_languageserver.exe'));
-	let commandOptions: ExecutableOptions = { stdio: 'pipe', detached: false };
-	
-	// If the extension is launched in debug mode then the debug server options are used
-	// Otherwise the run options are used
-	let serverOptions: ServerOptions =
-		(os.platform() === 'win32') ? {
-			run : <Executable>{ command: serverCommand, options: commandOptions },
-			debug: <Executable>{ command: serverCommand, options: commandOptions }
-		} : {
-			run : <Executable>{ command: 'mono', args: [serverCommand], options: commandOptions },
-			debug: <Executable>{ command: 'mono', args: [serverCommand], options: commandOptions }
-		};
+    // let serverExe = "D:\\Development\\Omnisharp\\csharp-language-server-protocol\\sample\\SampleServer\\bin\\Debug\\netcoreapp2.0\\win7-x64\\SampleServer.exe";
+    // let serverExe = "D:/Development/Omnisharp/omnisharp-roslyn/artifacts/publish/OmniSharp.Stdio.Driver/win7-x64/OmniSharp.exe";
+    // The debug options for the server
+    // let debugOptions = { execArgv: ['-lsp', '-d' };5
 
-	// Options to control the language client
-	let clientOptions: LanguageClientOptions = {
-		// Register the server for plain text documents
-		documentSelector: [
-			{ scheme: 'file', language: 'ispc' }
-		],
-		synchronize: {
-			// Synchronize the setting section 'languageServerExample' to the server
-			configurationSection: 'ispc',
-			// Notify the server about file changes to '.clientrc files contain in the workspace
-			fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
-		},
-		initializationOptions: {
-			capabilities: {
-				executeCommandProvider: {
-					commands: ['ispc.compile']
-				}
-			}
-		}
+    const extensionPath = context.extensionPath;
+    // Construct the path to the ispc_languageserver.dll
+    const serverDllPath = path.join(extensionPath, 'server', 'ispc_languageserver.dll');
 
-	};
-	
-	// Create the language client and start the client.
-	client = new LanguageClient(
-		'ispc',
-		'ISPC Language Server',
-		serverOptions,
-		clientOptions
-	);
+    // If the extension is launched in debug mode then the debug server options are used
+    // Otherwise the run options are used
+    let serverOptions: ServerOptions = {
+        // run: { command: serverExe, args: ['-lsp', '-d'] },
+        run: {
+            command: serverExe,
+            args: [serverDllPath],
+            transport: TransportKind.pipe,
+        },
+        // debug: { command: serverExe, args: ['-lsp', '-d'] }
+        debug: {
+            command: serverExe,
+            args: [serverDllPath],
+            transport: TransportKind.pipe,
+            runtime: "",
+        },
+    };
+    // let time = 100;
+    // let serverOptions = async () => {
+    //     await new Promise((r) => setTimeout(r, time));
+    //     time = 10000;
+    //     const [reader, writer] = createServerPipeTransport("\\\\.\\pipe\\" + "samplepipe");
+    //     return {
+    //         reader,
+    //         writer,
+    //     };
+    // };
 
-	let disposable = commands.registerCommand('ispc.compileDebug', () => {
-		window.activeTextEditor.document.save().then(() => {
-			const documentUri = window.activeTextEditor.document.uri;
-			const args: any[] = [documentUri];
-			client
-				.sendRequest<boolean>('workspace/executeCommand', {
-					"command": "CompileDebug", 
-					"arguments": args 
-				})
-				.then((response: boolean) => {
-				}, (error: any) => {
-					window.showErrorMessage(`Compilation request failed: ${error}`);
-				});
-		});
-	});
+    // Options to control the language client
+    let clientOptions: LanguageClientOptions = {
+        // Register the server for plain text documents
+        documentSelector: [
+            {
+                pattern: "**/*.cs",
+            },
+            {
+                pattern: "**/*.csx",
+            },
+            {
+                pattern: "**/*.cake",
+            },
+        ],
+        progressOnInitialization: true,
+        synchronize: {
+            // Synchronize the setting section 'languageServerExample' to the server
+            configurationSection: "ispc",
+            fileEvents: workspace.createFileSystemWatcher("**/*.ispc"),
+        },
+    };
 
-	// Start the client. This will also launch the server
-	client.start();
-}
+    // Create the language client and start the client.
+    const client = new LanguageClient("ispc", "ISPC Language Server", serverOptions, clientOptions);
+    client.registerProposedFeatures();
+    client.trace = Trace.Verbose;
+    let disposable = client.start();
 
-export function deactivate(): Thenable<void> {
-	if (!client) {
-		return undefined;
-	}
-	return client.stop();
+    // Push the disposable to the context's subscriptions so that the
+    // client can be deactivated on extension deactivation
+    context.subscriptions.push(disposable);
 }
