@@ -1,69 +1,63 @@
-﻿using LanguageServer.Infrastructure.JsonDotNet;
-using LanguageServer.Json;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Pipes;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Server;
+using Serilog;
 
-namespace ISPCLanguageServer
+namespace ispc_languageserver
 {
-    class Program
+    internal class Program
     {
-        static bool useNamedPipes = false;
-
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            // first check if we should use named pipes
-            foreach ( string arg in args )
-            {
-                if ( arg.ToLower() == "--usenamedpipes")
-                {
-                    useNamedPipes = true;
-                }
-            }
+            MainAsync(args).Wait();
+        }
 
-            Stream input, output;
+        private static async Task MainAsync(string[] args)
+        {
+            Log.Logger = new LoggerConfiguration()
+                        .Enrich.FromLogContext()
+                        .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
+                        .MinimumLevel.Verbose()
+                        .CreateLogger();
 
-            if ( useNamedPipes )
-            {
-                var stdInPipeName = @"input";
-                var stdOutPipeName = @"output";
+            IObserver<WorkDoneProgressReport> workDone = null!;
 
-                var pipeAccessRule = new PipeAccessRule("Everyone", PipeAccessRights.ReadWrite, System.Security.AccessControl.AccessControlType.Allow);
-                var pipeSecurity = new PipeSecurity();
-                pipeSecurity.AddAccessRule(pipeAccessRule);
+            var server = await LanguageServer.From(
+                options =>
+                    options
+                       .WithInput(Console.OpenStandardInput())
+                       .WithOutput(Console.OpenStandardOutput())
+                       .ConfigureLogging(
+                            x => x
+                                .AddSerilog(Log.Logger)
+                                .AddLanguageProtocolLogging()
+                                .SetMinimumLevel(LogLevel.Debug)
+                        )
+                       .WithHandler<TextDocumentHandler>()
+                       .WithHandler<DidChangeWatchedFilesHandler>()
+                       .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Trace)))
+                       .OnInitialized(
+                            async (server, request, response, token) =>
+                            {
+                                await Console.Error.WriteLineAsync("[ispc] - Initilized");
+                            }
+                        )
+                       .OnStarted(
+                            async (languageServer, token) =>
+                            {
+                                await Console.Error.WriteLineAsync("[ispc] - Server Started");
+                            }
+                        )
+            ).ConfigureAwait(false);
 
-                var inputPipe = new NamedPipeClientStream(stdInPipeName);
-                var outputPipe = new NamedPipeClientStream(stdOutPipeName);
 
-                inputPipe.Connect();
-                outputPipe.Connect();
-
-                input = inputPipe;
-                output = outputPipe;
-            }
-            else
-            {
-                input = Console.OpenStandardInput();
-                output = Console.OpenStandardOutput();
-            }
-
-
-            Console.OutputEncoding = new UTF8Encoding(); // UTF8N for non-Windows platform
-            var app = new App(input, output);
-            Logger.Instance.Attach(app);
-            try
-            {
-                app.Listen().Wait();
-            }
-            catch (AggregateException ex)
-            {
-                Console.Error.WriteLine(ex.InnerExceptions[0]);
-                Environment.Exit(-1);
-            }
+            await server.WaitForExit.ConfigureAwait(false);
         }
     }
 }

@@ -1,302 +1,228 @@
-﻿using LanguageServer;
-using LanguageServer.Client;
-using LanguageServer.Parameters;
-using LanguageServer.Parameters.General;
-using LanguageServer.Parameters.TextDocument;
-using LanguageServer.Parameters.Workspace;
+﻿using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.IO;
-using System.Threading;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
-using ISPCLanguageServer;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
-namespace ISPCLanguageServer
+namespace ispc_languageserver
 {
-    public static class Compiler
+    internal class Compiler
     {
         public class CompletedArgs
         {
             public string Output;
-            public Uri DocumentUri;
+            public DocumentUri DocumentUri;
         }
 
-        private static ProcessStartInfo                     _startInfo;
-        private static Thread                               _compilerThread;
-        private static bool                                 _isRunning;
-        private static ConcurrentQueue<TextDocumentItem>    _documents;
-        private static Logger                               _logger;
-        private static string                               _target;
-        private static string                               _arch;
-        private static string                               _CPU;
-        private static string                               _TargetOS;
-        private static string                               _compilerPath;
+        private readonly ILanguageServerFacade _languageServer;
+        private string _arch;
+        private string _cpu;
+        private string _target;
+        private string _targetOS;
+        private string _compilerPath;
+        private int _maxNumberOfProblems;
+        private ProcessStartInfo _startInfo;
 
-        public static event EventHandler<CompletedArgs>     Completed;
+        public List<Diagnostic> _diagnostics;
 
-        public static void Initialize(Logger logger, string path = "c:\\devtools\\bin\\ispc.exe", string arch = "x86", string target = "avx2", string cpu = "icelake-client", string targetOS = "windows" )
+        public Compiler(ILanguageServerFacade languageServer, ILanguageServerConfiguration _configuration)
         {
-            _documents = new ConcurrentQueue<TextDocumentItem>();
-            _logger = logger;
-
-            _compilerPath = path;
-            _target = target;
-            _arch = arch;
-            _CPU = cpu;
-            _TargetOS = targetOS;
-            UpdateStartInfo();
-
-            _compilerThread = new Thread(new ThreadStart(CompileProc));
-            _compilerThread.Start();
-
-            _isRunning = true;
+            _languageServer = languageServer;
+            _arch = "x86";
+            _target = "avx2";
+            _cpu = "icelake-client";
+            _targetOS = "windows";
+            _compilerPath = "ispc";
+            _maxNumberOfProblems = 100;
         }
 
-        public static void Shutdown()
-        {
-            _isRunning = false;
-            _compilerThread.Abort();
-        }
-
-        public static void Validate(TextDocumentItem document, bool forceEnqueue = false)
-        {
-            if (document == null)
-                return;
-
-            if (forceEnqueue == false && Enumerable.Contains<TextDocumentItem>(_documents, document, new DocumentComparer()))
-                return;
-
-            // enqueue the document
-            _documents.Enqueue(document);
-        }
-
-        private static void CompileProc()
-        {
-            // while we are running
-            while ( _isRunning )
-            {
-                // try to dequeue a document
-                // if no documents sleep for 30ms
-                TextDocumentItem doc = null;
-                while ( _documents.TryDequeue( out doc ) == false )
-                {
-                    Thread.Sleep(30);
-                }
-
-                if (doc != null && _startInfo != null)
-                {
-                    // create a new process
-                    Process compilerProc = new Process();
-                    compilerProc.StartInfo = _startInfo;
-
-                    // compile the file
-                    try
-                    {
-                        compilerProc.Start();
-                        _logger.Info("[ispc] - compiler started.");
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Info("[ispc] - unable to start compiler: "+ ex.Message);
-                        _logger.Info("[ispc] - For realtime error reporting, ensure location to ISPC is on PATH.");
-                        return;
-                    }
-
-                    // write the file to stdin
-                    compilerProc.StandardInput.WriteLine(doc.text);
-
-                    // flush and close stdin
-                    compilerProc.StandardInput.Flush();
-                    compilerProc.StandardInput.Close();
-
-                    // wait for exit
-                    compilerProc.WaitForExit();
-
-                    // collect the output data
-                    string stderr = compilerProc.StandardError.ReadToEnd();
-                    string stdout = compilerProc.StandardOutput.ReadToEnd();
-
-                    // completed successfully
-                    _logger.Info("[ispc] - compiler completed.");
-
-                    // if the compiler reported errors show them in the output
-                    if (stderr.Length > 1)
-                    {
-                        _logger.Error("[ispc] - stderr - " + stderr + "\n");
-                    }
-
-                    // raise the event
-                    CompletedArgs args = new CompletedArgs();
-                    args.Output = stderr + stdout;
-                    args.DocumentUri = doc.uri;
-
-                    Completed?.Invoke(_startInfo, args);
-                    
-                    // close the process
-                    compilerProc.Close();
-                    compilerProc = null;
-                }
-            }
-        }
-
-        public static void CompileDebug(string fPath)
-        {
-            // create a new process
-            Process compilerProc = new Process();
-
-            // Get the doc FileName
-            string fileName = Path.GetFileNameWithoutExtension(fPath);
-
-            _startInfo.Arguments = $"--arch={_arch} --cpu={_CPU} --target={_target} --target-os={_TargetOS} -O0 -g -o {fileName}.ispc.obj -h {fileName}.h \"{fPath}\"";
-            compilerProc.StartInfo = _startInfo;
-
-            _logger.Info("ispc "+_startInfo.Arguments);
-
-            // compile the file
-            try
-            {
-                compilerProc.Start();
-                _logger.Info("[ispc] - compiler started.");
-            }
-            catch (Exception ex)
-            {
-                _logger.Info("[ispc] - unable to start compiler: "+ ex.Message);
-                _logger.Info("[ispc] - Ensure location to ISPC is on PATH.");
-                return;
-            }
-
-            // wait for exit
-            compilerProc.WaitForExit();
-
-            // collect the output data
-            string stderr = compilerProc.StandardError.ReadToEnd();
-            string stdout = compilerProc.StandardOutput.ReadToEnd();
-
-            // completed successfully
-            _logger.Info("[ispc] - compiler completed.");
-
-            // if the compiler reported errors show them in the output
-            if (stderr.Length > 1)
-            {
-                _logger.Error("[ispc] - stderr - " + stderr + "\n");
-            }
-
-            // close the process
-            compilerProc.Close();
-            compilerProc = null;
-            UpdateStartInfo();
-        }
-
-        private class DocumentComparer : IEqualityComparer<TextDocumentItem>
-        {
-            public bool Equals(TextDocumentItem x, TextDocumentItem y)
-            {
-                if (Object.ReferenceEquals(x, y)) return true;
-
-                if (Object.ReferenceEquals(x, null) || Object.ReferenceEquals(y, null))
-                    return false;
-
-                return x.uri == y.uri;
-            }
-
-            // If Equals() returns true for a pair of objects 
-            // then GetHashCode() must return the same value for these objects.
-            public int GetHashCode(TextDocumentItem document)
-            {
-                if (Object.ReferenceEquals(document, null)) return 0;
-
-                return document.uri.GetHashCode();
-            }
-
-        }
-
-        public static string Target
-        {
-            set
-            {
-                _target = value;
-                UpdateStartInfo();
-            }
-            get
-            {
-                return _target;
-            }
-        }
-
-        public static string Architecture
-        {
-            set
-            {
-                _arch = value;
-                UpdateStartInfo();
-            }
-            get
-            {
-                return _arch;
-            }
-        }
-
-        public static string CPU
-        {
-            set
-            {
-                _CPU = value;
-                UpdateStartInfo();
-            }
-            get
-            {
-                return _CPU;
-            }
-        }
-
-        public static string TargetOS
-        {
-            set
-            {
-                _TargetOS = value;
-                UpdateStartInfo();
-            }
-            get
-            {
-                return _TargetOS;
-            }
-        }
-
-        public static string CompilerPath
-        {
-            set
-            {
-                _compilerPath = value;
-
-                // warn that the compiler path doesn't exist
-                if (Path.IsPathRooted(value) && !File.Exists(_compilerPath))
-                {
-                    _logger.Error($"[ispc] - Path to compiler does not exist.  \"{_compilerPath}\"");
-                }
-
-                // update the start info
-                UpdateStartInfo();
-            }
-            get
-            {
-                return _compilerPath;
-            }
-        }
-
-        private static void UpdateStartInfo()
+        public async void Compile(DocumentUri documentUri, string doc)
         {
             _startInfo = new ProcessStartInfo(_compilerPath);
-            _startInfo.Arguments = $"--arch={_arch} --cpu={_CPU} --target={_target} --target-os={_TargetOS} -O3 -o - -";
+            _startInfo.Arguments = $"--arch={_arch} --cpu={_cpu} --target={_target} --target-os={_targetOS} -O3 -o - -";
             _startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             _startInfo.UseShellExecute = false;
             _startInfo.RedirectStandardError = true;
             _startInfo.RedirectStandardOutput = true;
             _startInfo.RedirectStandardInput = true;
+
+            if(doc != null && doc != "")
+            {
+                // create a new process
+                Process compilerProc = new Process();
+                compilerProc.StartInfo = _startInfo;
+
+                // compile the file
+                try
+                {
+                    compilerProc.Start();
+                    Console.Error.WriteLine("[ispc] - compiler started.");
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine("[ispc] - unable to start compiler: "+ ex.Message);
+                    Console.Error.WriteLine("[ispc] - For realtime error reporting, ensure location to ISPC is on PATH.");
+                    return;
+                }
+
+                // write the file to stdin
+                compilerProc.StandardInput.WriteLine(doc);
+
+                // flush and close stdin
+                compilerProc.StandardInput.Flush();
+                compilerProc.StandardInput.Close();
+
+                // wait for exit
+                compilerProc.WaitForExit();
+
+                // collect the output data
+                string stderr = compilerProc.StandardError.ReadToEnd();
+                string stdout = compilerProc.StandardOutput.ReadToEnd();
+
+                // completed successfully
+                Console.Error.WriteLine("[ispc] - compiler completed.");
+
+                // if the compiler reported errors show them in the output
+                if (stderr.Length > 1)
+                {
+                    Console.Error.WriteLine("[ispc] - stderr - " + stderr + "\n");
+                }
+
+                CompletedArgs args = new CompletedArgs();
+                args.Output = stderr + stdout;
+                args.DocumentUri = documentUri;
+
+                _compiler_Completed(args);
+
+                // close the process
+                compilerProc.Close();
+                compilerProc = null;
+            }
+            
+        }
+
+        private Range GetDiagnosticRange(Capture line, Capture column)
+        {
+            Position p = new Position
+            {
+                Line = int.Parse(line.Value),
+                Character = int.Parse(column.Value)
+            };
+
+            // for some reason vscode is adding 1 to each of these values
+            // the values are correct in the jsonrpc, but the UI is increasing them by one
+            p.Line -= 1;
+            p.Character -= 1;
+
+            Range r = new Range
+            {
+                Start = p,
+                End = p
+            };
+
+            return r;
+        }
+
+        private string GetInfo(string output, MatchCollection mc, int index)
+        {
+            // if there's another match we wan to grab the text between the last match group
+            // and the next match group
+            if (index + 1 < mc.Count)
+            {
+                Match m = mc[index];
+                Match m2 = mc[index + 1];
+
+                int startIndex = m.Index + m.Length;
+                int length = m2.Index - startIndex;
+
+                return output.Substring(startIndex, length);
+            }
+            else
+            {
+                // there isn't another match so we want to grab the text between the last match and the end of the file
+                Match m = mc[index];
+
+                int startIndex = m.Index + m.Length;
+
+                return output.Substring(startIndex, output.Length - startIndex);
+            }
+        }
+        private DiagnosticSeverity GetDiagnosticSeverity(Capture cap)
+        {
+            string s = cap.Value.Trim().ToLower();
+            switch (s)
+            {
+                case "performance warning":
+                case "warning":
+                    return DiagnosticSeverity.Warning;
+                case "error":
+                    return DiagnosticSeverity.Error;
+                default:
+                    return DiagnosticSeverity.Information;
+            }
+        }
+
+        private void _compiler_Completed(CompletedArgs args)
+        {
+            if ( args.Output == null )
+            {
+                return;
+            }
+
+            //@"^((.*):(\d+):(\d+):\s+(Performance Warning|Warning|Error|warning|error):\s+(.*))$"
+            // Group 0 = Complete warning/error message
+            // Group 1 = Complete warning/error message
+            // Group 2 = File
+            // Group 3 = Line
+            // Group 4 = Column
+            // Group 5 = Severity
+            // Group 6 = Message
+            Regex rx = new Regex(@"^((.*):(\d+):(\d+):\s+(Performance Warning|Warning|Error|warning|error):\s+(.*))$",
+                RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
+
+            MatchCollection matches = rx.Matches(args.Output);
+
+            var diagnostics = new List<Diagnostic>();
+            for (int i = 0; i < matches.Count && i < _maxNumberOfProblems; i++)
+            {
+                Match m = matches[i];
+                Range range = GetDiagnosticRange(m.Groups[3], m.Groups[4]);
+
+                DiagnosticRelatedInformation r = new DiagnosticRelatedInformation
+                {
+                    Location = new Location { Range = range, Uri = args.DocumentUri },
+                    Message = GetInfo(args.Output, matches, i).Trim(),
+                };
+
+                Diagnostic d = new Diagnostic
+                {
+                    Range = range,
+                    Severity = GetDiagnosticSeverity(m.Groups[5]),
+                    Message = m.Groups[6].Value,
+                    RelatedInformation = new DiagnosticRelatedInformation[] { r },
+                    Source = "ispc"
+                };
+
+                diagnostics.Add(d);
+            }
+
+            var diagParams = new PublishDiagnosticsParams
+            {
+                Uri = args.DocumentUri,
+                Diagnostics = diagnostics,
+            };
+
+
+            // Send the diagnostics to the client
+            _languageServer.TextDocument.PublishDiagnostics(diagParams);
         }
     }
 }
