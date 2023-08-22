@@ -39,6 +39,7 @@ namespace ispc_languageserver
                                 .AddLanguageProtocolLogging()
                                 .SetMinimumLevel(LogLevel.Debug)
                         )
+                       .WithConfigurationSection("ispc")
                        .WithHandler<TextDocumentHandler>()
                        .WithHandler<DidChangeWatchedFilesHandler>()
                        .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Trace)))
