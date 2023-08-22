@@ -1,233 +1,57 @@
 {
-  "name": "ispc",
-  "description": "Intel® Implicit SPMD Program Compiler Language Extension",
-  "author": "Pete Brubaker, Ethan Davis, Intel®",
-  "license": "MIT",
-  "version": "1.2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ispc/ispc"
-  },
-  "icon": "images/ispc-icon.png",
-  "publisher": "intel-corporation",
-  "engines": {
-    "vscode": "^1.8.0"
-  },
-  "categories": [
-    "Programming Languages",
-    "Snippets"
-  ],
-  "activationEvents": [
-    "onLanguage:ispc"
-  ],
-  "main": "./out/src/extension",
-  "extensionKind": [
-    "workspace",
-    "ui"
-  ],
-  "contributes": {
-    "languages": [
-      {
-        "id": "ispc",
-        "aliases": [
-          "Intel® Implicit SPMD Program Compiler",
-          "ISPC",
-          "ispc",
-          "simd"
-        ],
-        "extensions": [
-          ".ispc",
-          ".isph"
-        ],
-        "configuration": "./ispc-configuration.json"
-      }
-    ],
-    "grammars": [
-      {
-        "language": "ispc",
-        "scopeName": "source.ispc",
-        "path": "./ispc.tmLanguage"
-      }
-    ],
-    "snippets": [
-      {
-        "language": "ispc",
-        "path": "./ispc-snippets.json"
-      }
-    ],
-    "configuration": {
-      "type": "object",
-      "title": "ISPC ",
-      "properties": {
-        "ispc.compilerTarget": {
-          "type": "string",
-          "enum": [
-            "sse",
-            "sse2-i32x4",
-            "sse2-i32x8",
-            "sse4-i32x4",
-            "sse4-i32x8",
-            "sse4-i16x8",
-            "sse4-i8x16",
-            "avx1",
-            "avx1-i32x4",
-            "avx1-i32x8",
-            "avx1-i32x16",
-            "avx1-i64x4",
-            "avx2",
-            "avx2-i32x8",
-            "avx2-i32x16",
-            "avx2-i64x4",
-            "avx512spr-x4", 
-            "avx512spr-x8",
-            "avx512spr-x16",
-            "avx512spr-x32",
-            "avx512spr-x64",
-            "avx512knl-i32x16",
-            "avx512skx-i32x16",
-            "neon",
-            "neon-i8x16",
-            "neon-i16x8",
-            "neon-i32x4",
-            "neon-i32x8"
-          ],
-          "default": "host",
-          "description": "The target setting of the compiler used for edit time validation of source files (warnings/errors.)"
-        },
-        "ispc.compilerArchitecture": {
-          "type": "string",
-          "enum": [
-            "x86",
-            "x86-64",
-            "arm",
-            "aarch64"
-          ],
-          "default": "x86-64",
-          "description": "The architecture setting of the compiler used for edit time validation of source files (warnings/errors.)"
-        },
-        "ispc.compilerCPU": {
-          "type": "string",
-          "enum": [
-            "generic",
-            "x86-64",
-            "atom",
-            "bonnell",
-            "core2",
-            "penryn",
-            "corei7",
-            "nehalem",
-            "btver2",
-            "ps4",
-            "corei7-avx",
-            "sandybridge",
-            "core-avx-i",
-            "ivybridge",
-            "core-avx2",
-            "haswell",
-            "broadwell",
-            "knl",
-            "skx",
-            "icelake-client",
-            "icl",
-            "slm",
-            "silvermont",
-            "cortex-a15",
-            "cortex-a9",
-            "cortex-a35",
-            "cortex-a53",
-            "cortex-a57",
-            "sapphirerapids",
-            "spr"
-          ],
-          "default": "icelake-client",
-          "description": "The CPU setting of the compiler used for edit time validation of source files (warnings/errors.)"
-        },
-        "ispc.compilerTargetOS": {
-          "type": "string",
-          "enum": [
-            "windows",
-            "linux",
-            "custom_linux",
-            "freebsd",
-            "macos",
-            "android",
-            "ps4"
-          ],
-          "default": "windows",
-          "description": "The target-os (Operating System) setting of the compiler used for edit time validation of source files (warnings/errors.)"
-        },
-        "ispc.compilerPath": {
-          "type": "string",
-          "default": "ispc",
-          "description": "The fully qualified path to the compiler used for edit time validation of source files (warnings/errors.)"
-        },
-        "ispc.maxNumberOfProblems": {
-          "type": "number",
-          "default": 100,
-          "description": "Controls the maximum number of problems returned by the server."
-        },
-        "ispc.trace.server": {
-          "type": "string",
-          "enum": [
-            "off",
-            "messages",
-            "verbose"
-          ],
-          "default": "off",
-          "description": "Traces the communication between VSCode and the ISPC language server."
-        }
-      }
+    "name": "language-client-example",
+    "description": "VSCode part of a language server",
+    "author": "Microsoft Corporation",
+    "license": "MIT",
+    "version": "0.0.1",
+    "publisher": "vscode",
+    "engines": {
+        "vscode": "^1.8.0"
     },
-    "configurationDefaults": {
-      "[ispc]": {
-        "editor.autoClosingBrackets": "always",
-        "editor.autoClosingQuotes": "always",
-        "editor.autoSurround": "brackets"
-      }
-    },
-    "commands": [
-      {
-        "command":"ispc.compileDebug",
-        "title": "Compile ISPC - Debug"
-      }
+    "categories": [
+        "Other"
     ],
-    "keybindings": [
-        {
-          "command": "ispc.compileDebug",
-          "key": "ctrl+shift+c",
-          "mac": "cmd+shift+c",
-          "when": "editorTextFocus"
-        }
+    "activationEvents": [
+        "onLanguage:plaintext"
     ],
-    "menus":{
-      "editor/context": [
-        {
-          "command":"ispc.compileDebug",
-          "when":"editorLangId == 'ispc'"
+    "main": "./out/src/extension",
+    "contributes": {
+        "configuration": {
+            "type": "object",
+            "title": "Example configuration",
+            "properties": {
+                "ispc.maxNumberOfProblems": {
+                    "type": "number",
+                    "default": 100,
+                    "description": "Controls the maximum number of problems produced by the server."
+                },
+                "ispc.trace.server": {
+                    "type": "string",
+                    "enum": [
+                        "off",
+                        "messages",
+                        "verbose"
+                    ],
+                    "default": "verbose",
+                    "description": "Traces the communication between VSCode and the languageServerExample service."
+                }
+            }
         }
-      ]
     },
-    "breakpoints": [
-      {
-        "language":"ispc"
-      }
-    ]
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "lint": "eslint src --ext ts",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "test": "node ./out/test/runTest.js"
-  },
-  "devDependencies": {
-    "@types/node": "^13.13.51",
-    "@types/vscode": "^1.8.0",
-    "typescript": "^3.9.9",
-    "vscode-test": "^1.5.2"
-  },
-  "dependencies": {
-    "vscode-languageclient": "~3.3.0"
-  }
+    "scripts": {
+        "vscode:prepublish": "tsc -p ./",
+        "compile": "tsc -p ./",
+        "update-vscode": "node ./node_modules/vscode/bin/install",
+        "postinstall": "node ./node_modules/vscode/bin/install"
+    },
+    "devDependencies": {
+        "@types/mocha": "8.0.0",
+        "@types/node": "14.0.25",
+        "typescript": "3.9.10",
+        "vscode": "1.1.37"
+    },
+    "dependencies": {
+        "vscode-languageclient": "^7.0.0-next.8",
+        "vscode-languageserver-protocol": "^3.16.0-next.6"
+    }
 }

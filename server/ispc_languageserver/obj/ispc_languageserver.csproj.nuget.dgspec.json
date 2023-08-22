@@ -1,63 +1,87 @@
 {
   "format": 1,
   "restore": {
-    "C:\\projects\\depot\\users\\pbrubake\\ispc-languageserver-csharp\\server\\ispc_languageserver\\ispc_languageserver.csproj": {}
+    "C:\\Users\\ethandav\\OneDrive - Intel Corporation\\Documents\\GitHub\\vscode-ispc\\server\\ispc_languageserver\\ispc_languageserver.csproj": {}
   },
   "projects": {
-    "C:\\projects\\depot\\users\\pbrubake\\ispc-languageserver-csharp\\server\\ispc_languageserver\\ispc_languageserver.csproj": {
+    "C:\\Users\\ethandav\\OneDrive - Intel Corporation\\Documents\\GitHub\\vscode-ispc\\server\\ispc_languageserver\\ispc_languageserver.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\projects\\depot\\users\\pbrubake\\ispc-languageserver-csharp\\server\\ispc_languageserver\\ispc_languageserver.csproj",
+        "projectUniqueName": "C:\\Users\\ethandav\\OneDrive - Intel Corporation\\Documents\\GitHub\\vscode-ispc\\server\\ispc_languageserver\\ispc_languageserver.csproj",
         "projectName": "ispc_languageserver",
-        "projectPath": "C:\\projects\\depot\\users\\pbrubake\\ispc-languageserver-csharp\\server\\ispc_languageserver\\ispc_languageserver.csproj",
-        "packagesPath": "C:\\Users\\PBRUBAKE\\.nuget\\packages\\",
-        "outputPath": "C:\\projects\\depot\\users\\pbrubake\\ispc-languageserver-csharp\\server\\ispc_languageserver\\obj\\",
+        "projectPath": "C:\\Users\\ethandav\\OneDrive - Intel Corporation\\Documents\\GitHub\\vscode-ispc\\server\\ispc_languageserver\\ispc_languageserver.csproj",
+        "packagesPath": "C:\\Users\\ethandav\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ethandav\\OneDrive - Intel Corporation\\Documents\\GitHub\\vscode-ispc\\server\\ispc_languageserver\\obj\\",
         "projectStyle": "PackageReference",
-        "skipContentFileWrite": true,
         "configFilePaths": [
-          "C:\\Users\\PBRUBAKE\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ethandav\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net471"
+          "net6.0"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net471": {
+          "net6.0": {
+            "targetAlias": "net6.0",
             "projectReferences": {}
           }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
         }
       },
       "frameworks": {
-        "net471": {
+        "net6.0": {
+          "targetAlias": "net6.0",
           "dependencies": {
-            "LanguageServerProtocol": {
-              "target": "Package",
-              "version": "[7.0.1, )"
-            },
             "Newtonsoft.Json": {
               "target": "Package",
-              "version": "[11.0.2, )"
+              "version": "[13.0.3, )"
             },
-            "System.Console": {
+            "OmniSharp.Extensions.JsonRpc": {
               "target": "Package",
-              "version": "[4.3.1, )"
+              "version": "[0.19.7, )"
+            },
+            "OmniSharp.Extensions.LanguageServer": {
+              "target": "Package",
+              "version": "[0.19.7, )"
+            },
+            "Serilog": {
+              "target": "Package",
+              "version": "[3.0.1, )"
+            },
+            "Serilog.Extensions.Logging": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
+            "Serilog.Sinks.File": {
+              "target": "Package",
+              "version": "[5.0.0, )"
             }
-          }
-        }
-      },
-      "runtimes": {
-        "win": {
-          "#import": []
-        },
-        "win-x64": {
-          "#import": []
-        },
-        "win-x86": {
-          "#import": []
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.203\\RuntimeIdentifierGraph.json"
         }
       }
     }
