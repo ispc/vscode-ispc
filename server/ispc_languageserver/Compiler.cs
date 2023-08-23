@@ -11,10 +11,16 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 
 namespace ispc_languageserver
 {
-    internal class Compiler
+    public interface ICompiler
+    {
+        public abstract void Compile(DocumentUri documentUri, string doc);
+    };
+
+    internal class Compiler : ICompiler
     {
         public class CompletedArgs
         {
@@ -22,7 +28,8 @@ namespace ispc_languageserver
             public DocumentUri DocumentUri;
         }
 
-        private readonly ILanguageServerFacade _languageServer;
+        private ILanguageServerFacade _languageServer;
+        private ILogger _logger;
         private string _arch;
         private string _cpu;
         private string _target;
@@ -33,7 +40,7 @@ namespace ispc_languageserver
 
         public List<Diagnostic> _diagnostics;
 
-        public Compiler(ILanguageServerFacade languageServer, ILanguageServerConfiguration _configuration)
+        public Compiler(ILanguageServerFacade languageServer)
         {
             _languageServer = languageServer;
             _arch = "x86";
@@ -44,7 +51,7 @@ namespace ispc_languageserver
             _maxNumberOfProblems = 100;
         }
 
-        public async void Compile(DocumentUri documentUri, string doc)
+        public void Compile(DocumentUri documentUri, string doc)
         {
             _startInfo = new ProcessStartInfo(_compilerPath);
             _startInfo.Arguments = $"--arch={_arch} --cpu={_cpu} --target={_target} --target-os={_targetOS} -O3 -o - -";
