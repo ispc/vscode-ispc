@@ -27,8 +27,7 @@ namespace ispc_languageserver
         private readonly ILogger<TextDocumentHandler> _logger;
         private readonly ILanguageServerConfiguration _configuration;
         private readonly ILanguageServerFacade _languageServer;
-        private readonly ITextDocumentSyncHandler _textDocumentSyncHandler;
-        private Compiler _compiler;
+        private readonly Compiler _compiler;
 
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
             new DocumentFilter {
@@ -36,12 +35,12 @@ namespace ispc_languageserver
             }
         );
 
-        public TextDocumentHandler(ILanguageServerFacade languageServer, ILogger<TextDocumentHandler> logger, ILanguageServerConfiguration configuration)
+        public TextDocumentHandler(ILanguageServerFacade languageServer, ILogger<TextDocumentHandler> logger, ILanguageServerConfiguration configuration, Compiler compiler)
         {
             _logger = logger;
             _configuration = configuration;
             _languageServer = languageServer;
-            _compiler = new Compiler(_languageServer, _configuration);
+            _compiler = compiler;
         }
 
         public TextDocumentSyncKind Change { get; } = TextDocumentSyncKind.Full;
