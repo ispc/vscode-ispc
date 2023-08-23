@@ -43,6 +43,12 @@ namespace ispc_languageserver
                        .WithHandler<TextDocumentHandler>()
                        .WithHandler<DidChangeWatchedFilesHandler>()
                        .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Trace)))
+                       .WithServices(
+                            services =>
+                            {
+                                services.AddSingleton<ICompiler, Compiler>();
+                            }
+                       )
                        .OnInitialized(
                             async (server, request, response, token) =>
                             {
