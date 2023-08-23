@@ -12,12 +12,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
+using Microsoft.Extensions.Configuration;
 
 namespace ispc_languageserver
 {
     public interface ICompiler
     {
         public abstract void Compile(DocumentUri documentUri, string doc);
+        public abstract void UpdateArguments();
     };
 
     internal class Compiler : ICompiler
@@ -28,7 +31,8 @@ namespace ispc_languageserver
             public DocumentUri DocumentUri;
         }
 
-        private ILanguageServerFacade _languageServer;
+        private readonly ILanguageServerFacade _languageServer;
+        private readonly ILanguageServerConfiguration _configuration;
         private ILogger _logger;
         private string _arch;
         private string _cpu;
@@ -40,19 +44,26 @@ namespace ispc_languageserver
 
         public List<Diagnostic> _diagnostics;
 
-        public Compiler(ILanguageServerFacade languageServer)
+        public Compiler(ILanguageServerFacade languageServer, ILanguageServerConfiguration configuration)
         {
             _languageServer = languageServer;
-            _arch = "x86";
-            _target = "avx2";
-            _cpu = "icelake-client";
-            _targetOS = "windows";
-            _compilerPath = "ispc";
-            _maxNumberOfProblems = 100;
+            _configuration = configuration;
         }
 
-        public void Compile(DocumentUri documentUri, string doc)
+        public void UpdateArguments()
         {
+            var config = _configuration.GetSection("ispc").AsEnumerable();
+            _arch = config.FirstOrDefault(setting => setting.Key == "ispc:compilerArchitecture").Value;
+            _cpu = config.FirstOrDefault(setting => setting.Key == "ispc:compilerCPU").Value;
+            _target = config.FirstOrDefault(setting => setting.Key == "ispc:compilerTarget").Value;
+            _targetOS = config.FirstOrDefault(setting => setting.Key == "ispc:compilerTargetOS").Value;
+            _compilerPath = config.FirstOrDefault(setting => setting.Key == "ispc:compilerPath").Value;
+            _maxNumberOfProblems = int.Parse(config.FirstOrDefault(setting => setting.Key == "ispc:maxNumberOfProblems").Value);
+        }
+
+        public async void Compile(DocumentUri documentUri, string doc)
+        {
+            UpdateArguments();
             _startInfo = new ProcessStartInfo(_compilerPath);
             _startInfo.Arguments = $"--arch={_arch} --cpu={_cpu} --target={_target} --target-os={_targetOS} -O3 -o - -";
             _startInfo.WindowStyle = ProcessWindowStyle.Hidden;
