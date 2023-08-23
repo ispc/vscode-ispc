@@ -63,7 +63,6 @@ namespace ispc_languageserver
                         )
             ).ConfigureAwait(false);
 
-
             await server.WaitForExit.ConfigureAwait(false);
         }
     }
