@@ -3,7 +3,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
@@ -39,16 +41,18 @@ namespace ispc_languageserver
                                 .AddLanguageProtocolLogging()
                                 .SetMinimumLevel(LogLevel.Debug)
                         )
-                       .WithConfigurationSection("ispc")
                        .WithHandler<TextDocumentHandler>()
                        .WithHandler<DidChangeWatchedFilesHandler>()
                        .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Trace)))
                        .WithServices(
                             services =>
                             {
-                                services.AddSingleton<ICompiler, Compiler>();
+                                services
+                                    .AddSingleton<ICompiler, Compiler>()
+                                    .Configure<IspcSettings>("test");
                             }
                        )
+                       .WithConfigurationSection("ispc")
                        .OnInitialized(
                             async (server, request, response, token) =>
                             {
@@ -65,5 +69,6 @@ namespace ispc_languageserver
 
             await server.WaitForExit.ConfigureAwait(false);
         }
+
     }
 }
