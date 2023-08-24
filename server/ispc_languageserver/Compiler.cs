@@ -14,61 +14,67 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace ispc_languageserver
 {
     public interface ICompiler
     {
         public abstract void Compile(DocumentUri documentUri, string doc);
-        public abstract void UpdateArguments();
     };
+
+    public class IspcSettings
+    {
+        public string? compilerTarget { get; set; }
+        public string? compilerArchitecture { get; set; }
+        public string? compilerCPU { get; set; }
+        public string? compilerTargetOS { get; set; }
+        public string? compilerPath { get; set; }
+        public int? maxNumberOfProblems { get; set; }
+    }
 
     internal class Compiler : ICompiler
     {
         public class CompletedArgs
         {
-            public string Output;
-            public DocumentUri DocumentUri;
+            public string? Output;
+            public DocumentUri? DocumentUri;
         }
 
         private readonly ILanguageServerFacade _languageServer;
         private readonly ILanguageServerConfiguration _configuration;
+        private IspcSettings _ispcSettings;
         private ILogger _logger;
-        private string _arch;
-        private string _cpu;
-        private string _target;
-        private string _targetOS;
-        private string _compilerPath;
-        private int _maxNumberOfProblems;
         private ProcessStartInfo _startInfo;
 
         public List<Diagnostic> _diagnostics;
 
-        public Compiler(ILanguageServerFacade languageServer, ILanguageServerConfiguration configuration)
+        public Compiler(ILanguageServerFacade languageServer, ILanguageServerConfiguration configuration, IOptionsMonitor<IspcSettings> ispcSettingsMonitor)
         {
             _languageServer = languageServer;
             _configuration = configuration;
+            _ispcSettings = ispcSettingsMonitor.CurrentValue;
+            ispcSettingsMonitor.OnChange(UpdateArguments);
         }
 
-        public void UpdateArguments()
+        private void UpdateArguments(IspcSettings arg1, string? arg2)
         {
             var config = _configuration.GetSection("ispc").AsEnumerable();
-            _arch = config.FirstOrDefault(setting => setting.Key == "ispc:compilerArchitecture").Value;
-            _cpu = config.FirstOrDefault(setting => setting.Key == "ispc:compilerCPU").Value;
-            _target = config.FirstOrDefault(setting => setting.Key == "ispc:compilerTarget").Value;
-            _targetOS = config.FirstOrDefault(setting => setting.Key == "ispc:compilerTargetOS").Value;
-            _compilerPath = config.FirstOrDefault(setting => setting.Key == "ispc:compilerPath").Value;
-            _maxNumberOfProblems = int.Parse(config.FirstOrDefault(setting => setting.Key == "ispc:maxNumberOfProblems").Value);
+            _ispcSettings.compilerArchitecture = config.FirstOrDefault(setting => setting.Key == "ispc:compilerArchitecture").Value;
+            _ispcSettings.compilerCPU = config.FirstOrDefault(setting => setting.Key == "ispc:compilerCPU").Value;
+            _ispcSettings.compilerTarget = config.FirstOrDefault(setting => setting.Key == "ispc:compilerTarget").Value;
+            _ispcSettings.compilerTargetOS = config.FirstOrDefault(setting => setting.Key == "ispc:compilerTargetOS").Value;
+            _ispcSettings.compilerPath = config.FirstOrDefault(setting => setting.Key == "ispc:compilerPath").Value;
+            _ispcSettings.maxNumberOfProblems = int.Parse(config.FirstOrDefault(setting => setting.Key == "ispc:maxNumberOfProblems").Value);
         }
 
         public async void Compile(DocumentUri documentUri, string doc)
         {
-            UpdateArguments();
-            _startInfo = new ProcessStartInfo(_compilerPath);
-            _startInfo.Arguments = $"--arch={_arch} --cpu={_cpu} --target={_target} --target-os={_targetOS} -O3 -o - -";
+            _startInfo = new ProcessStartInfo(_ispcSettings.compilerPath);
+            _startInfo.Arguments = $"--arch={_ispcSettings.compilerArchitecture} --cpu={_ispcSettings.compilerCPU} --target={_ispcSettings.compilerTarget} --target-os={_ispcSettings.compilerTargetOS} -O3 -o - -";
             _startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             _startInfo.UseShellExecute = false;
-            _startInfo.RedirectStandardError = true;
+            _startInfo.RedirectStandardError = true; 
             _startInfo.RedirectStandardOutput = true;
             _startInfo.RedirectStandardInput = true;
 
@@ -209,7 +215,7 @@ namespace ispc_languageserver
             MatchCollection matches = rx.Matches(args.Output);
 
             var diagnostics = new List<Diagnostic>();
-            for (int i = 0; i < matches.Count && i < _maxNumberOfProblems; i++)
+            for (int i = 0; i < matches.Count && i < _ispcSettings.maxNumberOfProblems; i++)
             {
                 Match m = matches[i];
                 Range range = GetDiagnosticRange(m.Groups[3], m.Groups[4]);
