@@ -64,6 +64,9 @@ namespace ispc_languageserver
                .OnStarted(
                     async (languageServer, token) =>
                     {
+                        var compiler = languageServer.GetService<ICompiler>();
+                        if(compiler != null)
+                            compiler.Initialize();
                         await Console.Error.WriteLineAsync("[ispc] - Server Started");
                     }
                 );
