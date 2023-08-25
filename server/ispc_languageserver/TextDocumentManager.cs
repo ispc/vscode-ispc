@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Timers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +9,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using System.Data;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using Timer = System.Timers.Timer;
+using System.Collections.Concurrent;
+using System.Xml.Linq;
 
 namespace ispc_languageserver
 {
@@ -24,12 +28,13 @@ namespace ispc_languageserver
         public IReadOnlyList<TextDocumentItem> All => _all;
         private readonly Dictionary<DocumentUri,string[]> _allLines = new Dictionary<DocumentUri, string[]>();
         public IReadOnlyDictionary<DocumentUri, string[]> AllLines => _allLines;
-        public event EventHandler<TextDocumentChangedEventArgs>? Changed;
-        private readonly ILanguageServerConfiguration _configuration;
+        private static ConcurrentQueue<TextDocumentItem>? _documents;
 
-        public TextDocumentManager(ILanguageServerConfiguration configuration)
+        public event EventHandler<TextDocumentChangedEventArgs>? Changed;
+
+        public TextDocumentManager()
         {
-            _configuration = configuration;
+            _documents = new ConcurrentQueue<TextDocumentItem>();
         }
 
         public void Add(TextDocumentItem document)
@@ -47,6 +52,8 @@ namespace ispc_languageserver
             _allLines[document.Uri] = document.Text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
 
             OnChanged(document);
+            Validate(document);
+            Console.Error.WriteLine($"[ispc] - Opened Document at: {document.Uri}");
         }
 
         public void Change(DocumentUri uri, int? version, string text)
@@ -78,9 +85,21 @@ namespace ispc_languageserver
             };
 
             // Replace TextDocumentItem
-            _all.RemoveAt(index);
-            Close(uri);
             _all[index] = newDocument;
+            Console.Error.WriteLine("[ispc] - Document Changed");
+            Validate(_all[index]);
+        }
+
+        private void Validate(TextDocumentItem document, bool forceEnqueue = false)
+        {
+            if (document == null || _documents == null)
+                return;
+            // Check if document is already queued for validation by the compiler
+            if (forceEnqueue == false && Enumerable.Contains(_documents, document, new DocumentComparer()))
+                return;
+
+            Console.Error.WriteLine("[ispc] - Queuing Document for Validation");
+            _documents.Enqueue(document);
         }
 
         public void Remove(DocumentUri uri)
@@ -91,21 +110,34 @@ namespace ispc_languageserver
                 return;
             }
             _all.RemoveAt(index);
-            Close(uri);
         }
-
 
         protected virtual void OnChanged(TextDocumentItem document)
         {
             Changed?.Invoke(this, new TextDocumentChangedEventArgs(document));
         }
 
-        public void Close(DocumentUri uri)
+        private class DocumentComparer : IEqualityComparer<TextDocumentItem>
         {
-            if (_configuration.TryGetScopedConfiguration(uri, out var disposable))
+            public bool Equals(TextDocumentItem x, TextDocumentItem y)
             {
-                disposable.Dispose();
+                if (Object.ReferenceEquals(x, y)) return true;
+
+                if (Object.ReferenceEquals(x, null) || Object.ReferenceEquals(y, null))
+                    return false;
+
+                return x.Uri == y.Uri;
             }
+
+            // If Equals() returns true for a pair of objects 
+            // then GetHashCode() must return the same value for these objects.
+            public int GetHashCode(TextDocumentItem document)
+            {
+                if (Object.ReferenceEquals(document, null)) return 0;
+
+                return document.Uri.GetHashCode();
+            }
+
         }
     }
 
