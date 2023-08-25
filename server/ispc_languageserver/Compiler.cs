@@ -20,7 +20,7 @@ namespace ispc_languageserver
 {
     public interface ICompiler
     {
-        public abstract void Compile(DocumentUri documentUri, string doc);
+        public abstract void Compile(TextDocumentItem document);
     };
 
     public class IspcSettings
@@ -68,7 +68,7 @@ namespace ispc_languageserver
             _ispcSettings.maxNumberOfProblems = int.Parse(config.FirstOrDefault(setting => setting.Key == "ispc:maxNumberOfProblems").Value);
         }
 
-        public async void Compile(DocumentUri documentUri, string doc)
+        public async void Compile(TextDocumentItem document)
         {
             _startInfo = new ProcessStartInfo(_ispcSettings.compilerPath);
             _startInfo.Arguments = $"--arch={_ispcSettings.compilerArchitecture} --cpu={_ispcSettings.compilerCPU} --target={_ispcSettings.compilerTarget} --target-os={_ispcSettings.compilerTargetOS} -O3 -o - -";
@@ -78,7 +78,7 @@ namespace ispc_languageserver
             _startInfo.RedirectStandardOutput = true;
             _startInfo.RedirectStandardInput = true;
 
-            if(doc != null && doc != "")
+            if(document.Text != null && document.Text != "")
             {
                 // create a new process
                 Process compilerProc = new Process();
@@ -98,7 +98,7 @@ namespace ispc_languageserver
                 }
 
                 // write the file to stdin
-                compilerProc.StandardInput.WriteLine(doc);
+                compilerProc.StandardInput.WriteLine(document.Text);
 
                 // flush and close stdin
                 compilerProc.StandardInput.Flush();
@@ -122,7 +122,7 @@ namespace ispc_languageserver
 
                 CompletedArgs args = new CompletedArgs();
                 args.Output = stderr + stdout;
-                args.DocumentUri = documentUri;
+                args.DocumentUri = document.Uri;
 
                 _compiler_Completed(args);
 
