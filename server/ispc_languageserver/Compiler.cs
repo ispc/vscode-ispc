@@ -20,7 +20,7 @@ namespace ispc_languageserver
 {
     public interface ICompiler
     {
-        public abstract void Compile(TextDocumentItem document);
+        public abstract void Initialize();
     };
 
     public class IspcSettings
@@ -57,8 +57,14 @@ namespace ispc_languageserver
             ispcSettingsMonitor.OnChange(UpdateArguments);
         }
 
+        public void Initialize()
+        {
+            Console.Error.WriteLine("[ispc] - Starting Compiler");
+        }
+
         private void UpdateArguments(IspcSettings arg1, string? arg2)
         {
+            Console.Error.WriteLine("[ispc] - Changing ISPC Settings");
             var config = _configuration.GetSection("ispc").AsEnumerable();
             _ispcSettings.compilerArchitecture = config.FirstOrDefault(setting => setting.Key == "ispc:compilerArchitecture").Value;
             _ispcSettings.compilerCPU = config.FirstOrDefault(setting => setting.Key == "ispc:compilerCPU").Value;
