@@ -27,7 +27,6 @@ namespace ispc_languageserver
         private readonly ILogger<TextDocumentHandler> _logger;
         private readonly ILanguageServerConfiguration _configuration;
         private readonly ITextDocumentManager _documents;
-        private readonly Compiler _compiler;
 
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
             new DocumentFilter {
@@ -38,14 +37,12 @@ namespace ispc_languageserver
         public TextDocumentHandler(
             ILogger<TextDocumentHandler> logger,
             ILanguageServerConfiguration configuration,
-            ITextDocumentManager documents,
-            Compiler compiler
+            ITextDocumentManager documents
             )
         {
             _logger = logger;
             _configuration = configuration;
             _documents = documents;
-            _compiler = compiler;
         }
 
         public TextDocumentSyncKind Change { get; } = TextDocumentSyncKind.Full;
