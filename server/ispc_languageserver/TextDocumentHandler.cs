@@ -55,7 +55,6 @@ namespace ispc_languageserver
             DocumentUri uri = notification.TextDocument.Uri;
             int? version = notification.TextDocument.Version;
             string text = notification.ContentChanges.Single().Text;
-            _compiler.Compile(notification.TextDocument.Uri, text);
             _documents.Change(uri, version, text);
 
             return Unit.Task;
@@ -65,6 +64,7 @@ namespace ispc_languageserver
         {
             await Task.Yield();
             await _configuration.GetScopedConfiguration(notification.TextDocument.Uri, token).ConfigureAwait(false);
+            _documents.Add(notification.TextDocument);
 
             return Unit.Value;
         }
