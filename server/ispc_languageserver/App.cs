@@ -19,7 +19,7 @@ namespace ispc_languageserver
         {
         }
 
-        public async Task Start()
+        public async Task StartAsync()
         {
             var server = await LanguageServer.From(options => ConfigureServer(options)).ConfigureAwait(false);
             await server.WaitForExit.ConfigureAwait(false);
@@ -50,7 +50,8 @@ namespace ispc_languageserver
                     {
                         services
                             .AddSingleton<ICompiler, Compiler>()
-                            .Configure<IspcSettings>("test");
+                            .AddSingleton<ITextDocumentManager, TextDocumentManager>()
+                            .Configure<IspcSettings>("ispc");
                     }
                )
                .WithConfigurationSection("ispc")
