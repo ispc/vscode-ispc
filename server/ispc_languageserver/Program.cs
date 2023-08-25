@@ -18,7 +18,7 @@ namespace ispc_languageserver
         private static void Main(string[] args)
         {
             App app = new App();
-            app.Start().Wait();
+            app.StartAsync().Wait();
         }
     }
 }
