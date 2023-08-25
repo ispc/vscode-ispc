@@ -26,6 +26,7 @@ namespace ispc_languageserver
     {
         private readonly ILogger<TextDocumentHandler> _logger;
         private readonly ILanguageServerConfiguration _configuration;
+        private readonly ITextDocumentManager _documents;
         private readonly Compiler _compiler;
 
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
@@ -34,10 +35,16 @@ namespace ispc_languageserver
             }
         );
 
-        public TextDocumentHandler(ILogger<TextDocumentHandler> logger, ILanguageServerConfiguration configuration, Compiler compiler)
+        public TextDocumentHandler(
+            ILogger<TextDocumentHandler> logger,
+            ILanguageServerConfiguration configuration,
+            ITextDocumentManager documents,
+            Compiler compiler
+            )
         {
             _logger = logger;
             _configuration = configuration;
+            _documents = documents;
             _compiler = compiler;
         }
 
@@ -45,8 +52,11 @@ namespace ispc_languageserver
 
         public override Task<Unit> Handle(DidChangeTextDocumentParams notification, CancellationToken token)
         {
-            string docText = notification.ContentChanges.Single().Text;
-            _compiler.Compile(notification.TextDocument.Uri, docText);
+            DocumentUri uri = notification.TextDocument.Uri;
+            int? version = notification.TextDocument.Version;
+            string text = notification.ContentChanges.Single().Text;
+            _compiler.Compile(notification.TextDocument.Uri, text);
+            _documents.Change(uri, version, text);
 
             return Unit.Task;
         }
@@ -78,5 +88,6 @@ namespace ispc_languageserver
         };
 
         public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri) => new TextDocumentAttributes(uri, "ispc");
+
     }
 }
