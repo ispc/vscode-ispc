@@ -17,58 +17,8 @@ namespace ispc_languageserver
     {
         private static void Main(string[] args)
         {
-            MainAsync(args).Wait();
+            App app = new App();
+            app.Start().Wait();
         }
-
-        private static async Task MainAsync(string[] args)
-        {
-            Log.Logger = new LoggerConfiguration()
-                        .Enrich.FromLogContext()
-                        .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
-                        .MinimumLevel.Verbose()
-                        .CreateLogger();
-
-            IObserver<WorkDoneProgressReport> workDone = null!;
-
-            var server = await LanguageServer.From(
-                options =>
-                    options
-                       .WithInput(Console.OpenStandardInput())
-                       .WithOutput(Console.OpenStandardOutput())
-                       .ConfigureLogging(
-                            x => x
-                                .AddSerilog(Log.Logger)
-                                .AddLanguageProtocolLogging()
-                                .SetMinimumLevel(LogLevel.Debug)
-                        )
-                       .WithHandler<TextDocumentHandler>()
-                       .WithHandler<DidChangeWatchedFilesHandler>()
-                       .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Trace)))
-                       .WithServices(
-                            services =>
-                            {
-                                services
-                                    .AddSingleton<ICompiler, Compiler>()
-                                    .Configure<IspcSettings>("test");
-                            }
-                       )
-                       .WithConfigurationSection("ispc")
-                       .OnInitialized(
-                            async (server, request, response, token) =>
-                            {
-                                await Console.Error.WriteLineAsync("[ispc] - Initilized");
-                            }
-                        )
-                       .OnStarted(
-                            async (languageServer, token) =>
-                            {
-                                await Console.Error.WriteLineAsync("[ispc] - Server Started");
-                            }
-                        )
-            ).ConfigureAwait(false);
-
-            await server.WaitForExit.ConfigureAwait(false);
-        }
-
     }
 }
