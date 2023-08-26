@@ -20,6 +20,7 @@ namespace ispc_languageserver
         public abstract void Add(TextDocumentItem document);
         public abstract void Change(DocumentUri uri, int? version, string text);
         public abstract void Remove(DocumentUri uri);
+        public ConcurrentQueue<TextDocumentItem> _queue { get; set; }
     }
 
     public class TextDocumentManager : ITextDocumentManager
@@ -28,13 +29,13 @@ namespace ispc_languageserver
         public IReadOnlyList<TextDocumentItem> All => _all;
         private readonly Dictionary<DocumentUri,string[]> _allLines = new Dictionary<DocumentUri, string[]>();
         public IReadOnlyDictionary<DocumentUri, string[]> AllLines => _allLines;
-        private static ConcurrentQueue<TextDocumentItem>? _documents;
+        public ConcurrentQueue<TextDocumentItem>? _queue { get; set; }
 
         public event EventHandler<TextDocumentChangedEventArgs>? Changed;
 
         public TextDocumentManager()
         {
-            _documents = new ConcurrentQueue<TextDocumentItem>();
+            _queue = new ConcurrentQueue<TextDocumentItem>();
         }
 
         public void Add(TextDocumentItem document)
@@ -52,8 +53,8 @@ namespace ispc_languageserver
             _allLines[document.Uri] = document.Text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
 
             OnChanged(document);
-            Validate(document);
             Console.Error.WriteLine($"[ispc] - Opened Document at: {document.Uri}");
+            Validate(document);
         }
 
         public void Change(DocumentUri uri, int? version, string text)
@@ -92,14 +93,14 @@ namespace ispc_languageserver
 
         private void Validate(TextDocumentItem document, bool forceEnqueue = false)
         {
-            if (document == null || _documents == null)
+            if (document == null || _queue == null)
                 return;
             // Check if document is already queued for validation by the compiler
-            if (forceEnqueue == false && Enumerable.Contains(_documents, document, new DocumentComparer()))
+            if (forceEnqueue == false && Enumerable.Contains(_queue, document, new DocumentComparer()))
                 return;
 
             Console.Error.WriteLine("[ispc] - Queuing Document for Validation");
-            _documents.Enqueue(document);
+            _queue.Enqueue(document);
         }
 
         public void Remove(DocumentUri uri)

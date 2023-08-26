@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using System.Collections.Concurrent;
 
 namespace ispc_languageserver
 {
@@ -43,28 +44,51 @@ namespace ispc_languageserver
 
         private readonly ILanguageServerFacade _languageServer;
         private readonly ILanguageServerConfiguration _configuration;
+        private readonly ITextDocumentManager _documentManager;
         private IspcSettings _ispcSettings;
         private ILogger _logger;
         private ProcessStartInfo _startInfo;
+        private ConcurrentQueue<TextDocumentItem>? _documentQueue;
+        private static Thread? _compilerThread;
+        private bool _isRunning = false;
+        private bool _configured = false;
 
         public List<Diagnostic> _diagnostics;
 
-        public Compiler(ILanguageServerFacade languageServer, ILanguageServerConfiguration configuration, IOptionsMonitor<IspcSettings> ispcSettingsMonitor)
+        public Compiler(
+            ILanguageServerFacade languageServer,
+            ILanguageServerConfiguration configuration,
+            ITextDocumentManager documentManager,
+            IOptionsMonitor<IspcSettings> ispcSettingsMonitor
+            )
         {
             _languageServer = languageServer;
             _configuration = configuration;
+            _documentManager = documentManager;
             _ispcSettings = ispcSettingsMonitor.CurrentValue;
-            ispcSettingsMonitor.OnChange(UpdateArguments);
+            ispcSettingsMonitor.OnChange(DidChangeConfiguration);
         }
 
         public void Initialize()
         {
             Console.Error.WriteLine("[ispc] - Starting Compiler");
+            _documentQueue = _documentManager._queue;
+
+            _compilerThread = new Thread(new ThreadStart(CompilerProc));
+            _compilerThread.Start();
+
+            _isRunning = true;
+            Console.Error.WriteLine("[ispc] - Compiler is running");
         }
 
-        private void UpdateArguments(IspcSettings arg1, string? arg2)
+        private void DidChangeConfiguration(IspcSettings arg1, string? arg2)
         {
             Console.Error.WriteLine("[ispc] - Changing ISPC Settings");
+            UpdateCompilerArguments();
+        }
+
+        private void UpdateCompilerArguments()
+        {
             var config = _configuration.GetSection("ispc").AsEnumerable();
             _ispcSettings.compilerArchitecture = config.FirstOrDefault(setting => setting.Key == "ispc:compilerArchitecture").Value;
             _ispcSettings.compilerCPU = config.FirstOrDefault(setting => setting.Key == "ispc:compilerCPU").Value;
@@ -72,71 +96,94 @@ namespace ispc_languageserver
             _ispcSettings.compilerTargetOS = config.FirstOrDefault(setting => setting.Key == "ispc:compilerTargetOS").Value;
             _ispcSettings.compilerPath = config.FirstOrDefault(setting => setting.Key == "ispc:compilerPath").Value;
             _ispcSettings.maxNumberOfProblems = int.Parse(config.FirstOrDefault(setting => setting.Key == "ispc:maxNumberOfProblems").Value);
+
+            Console.Error.WriteLine($"[ispc] - Target: {_ispcSettings.compilerTarget}");
+            Console.Error.WriteLine($"[ispc] - OS: {_ispcSettings.compilerTargetOS}");
+            Console.Error.WriteLine($"[ispc] - Architecture: {_ispcSettings.compilerArchitecture}");
+            Console.Error.WriteLine($"[ispc] - CPU: {_ispcSettings.compilerCPU}");
+            Console.Error.WriteLine($"[ispc] - Compiler Path: {_ispcSettings.compilerPath}");
+            Console.Error.WriteLine($"[ispc] - Max Number of Problems: {_ispcSettings.maxNumberOfProblems}");
+            Console.Error.WriteLine("[ispc] - Compiler Settings Updated");
+
+            UpdateStartInfo();
+
+            _configured = true;
         }
 
-        public async void Compile(TextDocumentItem document)
+        private void UpdateStartInfo()
         {
             _startInfo = new ProcessStartInfo(_ispcSettings.compilerPath);
             _startInfo.Arguments = $"--arch={_ispcSettings.compilerArchitecture} --cpu={_ispcSettings.compilerCPU} --target={_ispcSettings.compilerTarget} --target-os={_ispcSettings.compilerTargetOS} -O3 -o - -";
             _startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             _startInfo.UseShellExecute = false;
-            _startInfo.RedirectStandardError = true; 
+            _startInfo.RedirectStandardError = true;
             _startInfo.RedirectStandardOutput = true;
             _startInfo.RedirectStandardInput = true;
+        }
 
-            if(document.Text != null && document.Text != "")
+        public async void CompilerProc()
+        {
+            while(_isRunning)
             {
-                // create a new process
-                Process compilerProc = new Process();
-                compilerProc.StartInfo = _startInfo;
-
-                // compile the file
-                try
+                TextDocumentItem doc = null;
+                while(_documentQueue.TryDequeue(out doc) == false)
                 {
-                    compilerProc.Start();
-                    Console.Error.WriteLine("[ispc] - compiler started.");
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine("[ispc] - unable to start compiler: "+ ex.Message);
-                    Console.Error.WriteLine("[ispc] - For realtime error reporting, ensure location to ISPC is on PATH.");
-                    return;
+                    Thread.Sleep(30);
                 }
 
-                // write the file to stdin
-                compilerProc.StandardInput.WriteLine(document.Text);
-
-                // flush and close stdin
-                compilerProc.StandardInput.Flush();
-                compilerProc.StandardInput.Close();
-
-                // wait for exit
-                compilerProc.WaitForExit();
-
-                // collect the output data
-                string stderr = compilerProc.StandardError.ReadToEnd();
-                string stdout = compilerProc.StandardOutput.ReadToEnd();
-
-                // completed successfully
-                Console.Error.WriteLine("[ispc] - compiler completed.");
-
-                // if the compiler reported errors show them in the output
-                if (stderr.Length > 1)
+                if(doc != null && _startInfo != null)
                 {
-                    Console.Error.WriteLine("[ispc] - stderr - " + stderr + "\n");
+                    // create a new process
+                    Process compilerProc = new Process();
+                    compilerProc.StartInfo = _startInfo;
+
+                    // compile the file
+                    try
+                    {
+                        compilerProc.Start();
+                        Console.Error.WriteLine("[ispc] - compiler started.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine("[ispc] - unable to start compiler: "+ ex.Message);
+                        Console.Error.WriteLine("[ispc] - For realtime error reporting, ensure location to ISPC is on PATH.");
+                        return;
+                    }
+
+                    // write the file to stdin
+                    compilerProc.StandardInput.WriteLine(doc.Text);
+
+                    // flush and close stdin
+                    compilerProc.StandardInput.Flush();
+                    compilerProc.StandardInput.Close();
+
+                    // wait for exit
+                    compilerProc.WaitForExit();
+
+                    // collect the output data
+                    string stderr = compilerProc.StandardError.ReadToEnd();
+                    string stdout = compilerProc.StandardOutput.ReadToEnd();
+
+                    // completed successfully
+                    Console.Error.WriteLine("[ispc] - compiler completed.");
+
+                    // if the compiler reported errors show them in the output
+                    if (stderr.Length > 1)
+                    {
+                        Console.Error.WriteLine("[ispc] - stderr - " + stderr + "\n");
+                    }
+
+                    CompletedArgs args = new CompletedArgs();
+                    args.Output = stderr + stdout;
+                    args.DocumentUri = doc.Uri;
+
+                    _compiler_Completed(args);
+
+                    // close the process
+                    compilerProc.Close();
+                    compilerProc = null;
                 }
-
-                CompletedArgs args = new CompletedArgs();
-                args.Output = stderr + stdout;
-                args.DocumentUri = document.Uri;
-
-                _compiler_Completed(args);
-
-                // close the process
-                compilerProc.Close();
-                compilerProc = null;
             }
-            
         }
 
         private Range GetDiagnosticRange(Capture line, Capture column)
