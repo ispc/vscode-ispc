@@ -51,7 +51,8 @@ namespace ispc_languageserver
                         services
                             .AddSingleton<ICompiler, Compiler>()
                             .AddSingleton<ITextDocumentManager, TextDocumentManager>()
-                            .Configure<IspcSettings>("ispc");
+                            .Configure<IspcSettings>("ispc")
+                            ;
                     }
                )
                .WithConfigurationSection("ispc")
