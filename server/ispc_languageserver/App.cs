@@ -50,6 +50,7 @@ namespace ispc_languageserver
                     {
                         services
                             .AddSingleton<ICompiler, Compiler>()
+                            .AddSingleton<IAbstractSyntaxTreeManager, AbstractSyntaxTreeManager>()
                             .AddSingleton<ITextDocumentManager, TextDocumentManager>()
                             .Configure<IspcSettings>("ispc")
                             ;
@@ -68,6 +69,9 @@ namespace ispc_languageserver
                         var compiler = languageServer.GetService<ICompiler>();
                         if(compiler != null)
                             compiler.Initialize();
+                        var treeParser = languageServer.GetService<IAbstractSyntaxTreeManager>();
+                        if(treeParser != null)
+                            treeParser.Initialize();
                         await Console.Error.WriteLineAsync("[ispc] - Server Started");
                     }
                 );
