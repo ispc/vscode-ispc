@@ -25,17 +25,18 @@ namespace ispc_languageserver
 
     public class TextDocumentManager : ITextDocumentManager
     {
+        private readonly IAbstractSyntaxTreeManager _syntaxTrees;
         private readonly List<TextDocumentItem> _all = new List<TextDocumentItem>();
         public IReadOnlyList<TextDocumentItem> All => _all;
         private readonly Dictionary<DocumentUri,string[]> _allLines = new Dictionary<DocumentUri, string[]>();
         public IReadOnlyDictionary<DocumentUri, string[]> AllLines => _allLines;
         public ConcurrentQueue<TextDocumentItem>? _queue { get; set; }
-
         public event EventHandler<TextDocumentChangedEventArgs>? Changed;
 
-        public TextDocumentManager()
+        public TextDocumentManager(IAbstractSyntaxTreeManager syntaxTrees)
         {
             _queue = new ConcurrentQueue<TextDocumentItem>();
+            _syntaxTrees = syntaxTrees;
         }
 
         public void Add(TextDocumentItem document)
@@ -55,6 +56,7 @@ namespace ispc_languageserver
             OnChanged(document);
             Console.Error.WriteLine($"[ispc] - Opened Document at: {document.Uri}");
             Validate(document);
+            _syntaxTrees.ParseDocument(document);
         }
 
         public void Change(DocumentUri uri, int? version, string text)
