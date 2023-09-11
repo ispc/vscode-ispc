@@ -216,7 +216,7 @@ namespace api
     
         [DllImport("tree_sitter.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         [return: NativeTypeName("const TSLanguage *")]
-        public static extern TSLanguage* ts_parser_language([NativeTypeName("const TSParser *")] TSParser* self);
+        public static extern IntPtr ts_parser_language([NativeTypeName("const TSParser *")] IntPtr self);
     
         [DllImport("tree_sitter.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         [return: NativeTypeName("_Bool")]
@@ -447,7 +447,7 @@ namespace api
         public static extern TSTreeCursor ts_tree_cursor_copy([NativeTypeName("const TSTreeCursor *")] TSTreeCursor* param0);
     
         [DllImport("tree_sitter.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-        public static extern TSQuery* ts_query_new([NativeTypeName("const TSLanguage *")] TSLanguage* language, [NativeTypeName("const char *")] sbyte* source, [NativeTypeName("uint32_t")] uint source_len, [NativeTypeName("uint32_t *")] uint* error_offset, TSQueryError* error_type);
+        public static extern IntPtr ts_query_new([NativeTypeName("const TSLanguage *")] IntPtr language, [NativeTypeName("const char *")] IntPtr source, [NativeTypeName("uint32_t")] uint source_len, [NativeTypeName("uint32_t *")] IntPtr error_offset, ref TSQueryError error_type);
     
         [DllImport("tree_sitter.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern void ts_query_delete(TSQuery* param0);
@@ -502,13 +502,13 @@ namespace api
         public static extern void ts_query_disable_pattern(TSQuery* param0, [NativeTypeName("uint32_t")] uint param1);
     
         [DllImport("tree_sitter.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-        public static extern TSQueryCursor* ts_query_cursor_new();
+        public static extern IntPtr ts_query_cursor_new();
     
         [DllImport("tree_sitter.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern void ts_query_cursor_delete(TSQueryCursor* param0);
     
         [DllImport("tree_sitter.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-        public static extern void ts_query_cursor_exec(TSQueryCursor* param0, [NativeTypeName("const TSQuery *")] TSQuery* param1, TSNode param2);
+        public static extern void ts_query_cursor_exec(IntPtr param0, [NativeTypeName("const TSQuery *")] IntPtr param1, TSNode param2);
     
         [DllImport("tree_sitter.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         [return: NativeTypeName("_Bool")]
