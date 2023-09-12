@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ispc_languageserver
 {
@@ -29,6 +30,7 @@ namespace ispc_languageserver
     internal class AbstractSyntaxTreeManager : IAbstractSyntaxTreeManager
     {
         private IntPtr parser;
+        private IntPtr language;
         private List<IntPtr> trees = new List<IntPtr>();
         public List<Definition> Definitions = new List<Definition>();
 
@@ -38,6 +40,7 @@ namespace ispc_languageserver
         
             parser = TSMethods.ts_parser_new();
             TSMethods.ts_parser_set_language(parser, tree_sitter_ispc());
+            language = TSMethods.ts_parser_language(parser);
         }
 
         public void ParseDocument(TextDocumentItem document)
@@ -63,47 +66,28 @@ namespace ispc_languageserver
             TSNode root_node = TSMethods.ts_tree_root_node(tree);
             LoadDefinitions(root_node, source);
 
-            //foreach(Definition definition in Definitions)
-            //{
-            //    Console.Error.WriteLine("[tree-sitter] - Definition: "+definition.Text);
-            //}
+            foreach(Definition definition in Definitions)
+            {
+                Console.Error.WriteLine("[tree-sitter] - Definition: "+definition.Text);
+            }
 
         }
 
         private void LoadDefinitions(TSNode node, string source)
         {
-            uint ChildCount = TSMethods.ts_node_child_count(node);
-            if(TSMethods.ts_node_is_named(node))
-            {
-                IntPtr NodeType = TSMethods.ts_node_type(node);
-                string NodeTypeStr = Marshal.PtrToStringAnsi(NodeType);
-                if(NodeTypeStr == "declaration")
-                {
-                    for(uint i = 0; i < ChildCount; ++i)
-                    {
-                        TSNode childNode = TSMethods.ts_node_child(node, i);
-                        IntPtr childNodeType = TSMethods.ts_node_type(childNode);
-                        string childNodeTypeStr = Marshal.PtrToStringAnsi(childNodeType);
-                        PrintNodeText(childNode, source);
-                        if(childNodeTypeStr == "identifier")
-                        {
-                            i = ChildCount;
-                        }
-                    }
-                    var newDefinition = new Definition
-                    {
-                        Range = GetNodeRange(node),
-                        Text = Marshal.PtrToStringAnsi(TSMethods.ts_node_string(node))
-                    };
-                    Definitions.Add(newDefinition);
-                }
-            }
-
-            for(uint i = 0; i < ChildCount; ++i)
-            {
-                TSNode child = TSMethods.ts_node_child(node, i);
-                LoadDefinitions(child, source);
-            }
+            String queryStr = "(declaration (init_declarator declarator: (identifier) @identifier))";
+            IntPtr queryCstr = Marshal.StringToCoTaskMemAnsi(queryStr);
+            IntPtr error_offset = IntPtr.Zero;
+            TSQueryError error_type = new TSQueryError();
+            IntPtr query = TSMethods.ts_query_new(
+                language,
+                queryCstr,
+                (uint)queryStr.Length,
+                error_offset,
+                ref error_type 
+                );
+            IntPtr cursor = TSMethods.ts_query_cursor_new();
+            TSMethods.ts_query_cursor_exec(cursor, query, node);
         }
 
         private static Range GetNodeRange(TSNode node)
