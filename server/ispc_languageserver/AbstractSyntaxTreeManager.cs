@@ -64,7 +64,7 @@ namespace ispc_languageserver
             trees.Add(tree);
 
             TSNode root_node = TSMethods.ts_tree_root_node(tree);
-            LoadDefinitions(root_node, source);
+            LoadDefinitions(root_node,source);
 
             foreach(Definition definition in Definitions)
             {
@@ -88,6 +88,17 @@ namespace ispc_languageserver
                 );
             IntPtr cursor = TSMethods.ts_query_cursor_new();
             TSMethods.ts_query_cursor_exec(cursor, query, node);
+
+            TSQueryMatch match = new TSQueryMatch();
+            unsafe
+            {
+            while(TSMethods.ts_query_cursor_next_match(cursor, ref match) == 1)
+            {
+                Console.Error.WriteLine($"[tree-sitter] - Match found {match.captures->node.ToString()}");
+                PrintNodeText(match.captures->node,source);
+            }
+            }
+
         }
 
         private static Range GetNodeRange(TSNode node)
