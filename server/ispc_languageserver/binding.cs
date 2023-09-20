@@ -529,7 +529,7 @@ namespace api
     
         [DllImport("tree_sitter.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         [return: NativeTypeName("_Bool")]
-        public static extern byte ts_query_cursor_next_match(TSQueryCursor* param0, TSQueryMatch* match);
+        public static extern byte ts_query_cursor_next_match(IntPtr param0, ref TSQueryMatch match);
     
         [DllImport("tree_sitter.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern void ts_query_cursor_remove_match(TSQueryCursor* param0, [NativeTypeName("uint32_t")] uint id);
