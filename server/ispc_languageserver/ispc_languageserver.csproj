@@ -5,6 +5,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,7 +24,11 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="mkdir &quot;$(SolutionDir)..\client-vscode\server\&quot;&#xD;&#xA;copy /Y &quot;$(TargetDir)\*.*&quot; &quot;$(SolutionDir)..\client-vscode\server\&quot;" />
+    <Exec Command="copy /Y &quot;$(TargetDir)\*.*&quot; &quot;$(SolutionDir)..\client-vscode\server\&quot;" />
+  </Target>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="mkdir &quot;$(SolutionDir)..\client-vscode\server\&quot;&#xD;&#xA;msbuild &quot;$(SolutionDir)\tree-sitter\build\tree_sitter.vcxproj&quot;&#xD;&#xA;msbuild &quot;$(SolutionDir)\ispc.tree-sitter\build\ispc.tree-sitter.sln&quot;" />
   </Target>
 
 </Project>
