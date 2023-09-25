@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\ethandav\OneDrive - Intel Corporation\Documents\GitHub\vscode-ispc\server\tree-sitter\build\_deps\_project_options-subbuild\CMakeFiles\ea55289118f828ef1a28345b92511354\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{DF899762-F61D-3983-AF17-DD8E4D1EE833}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

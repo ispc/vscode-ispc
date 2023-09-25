@@ -1,0 +1,11 @@
+set(tree-sitter_VERSION @PACKAGE_VERSION@)
+
+@PACKAGE_INIT@
+
+@PACKAGE_DEPENDENCIES@
+
+include("${CMAKE_CURRENT_LIST_DIR}/tree-sitterTargets.cmake")
+
+
+
+@INCLUDED_CONTENT@
