@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\ethandav\OneDrive - Intel Corporation\Documents\Tree-Sitter-Projects\tree-sitter-cmake\tree-sitter\_deps\_project_options-subbuild\CMakeFiles\fd868777cd4625c6ff5763955147c2e8\_project_options-populate-mkdir.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\ethandav\OneDrive - Intel Corporation\Documents\Tree-Sitter-Projects\tree-sitter-cmake\tree-sitter\_deps\_project_options-subbuild\CMakeFiles\fd868777cd4625c6ff5763955147c2e8\_project_options-populate-download.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\ethandav\OneDrive - Intel Corporation\Documents\Tree-Sitter-Projects\tree-sitter-cmake\tree-sitter\_deps\_project_options-subbuild\CMakeFiles\fd868777cd4625c6ff5763955147c2e8\_project_options-populate-update.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\ethandav\OneDrive - Intel Corporation\Documents\Tree-Sitter-Projects\tree-sitter-cmake\tree-sitter\_deps\_project_options-subbuild\CMakeFiles\fd868777cd4625c6ff5763955147c2e8\_project_options-populate-patch.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\ethandav\OneDrive - Intel Corporation\Documents\Tree-Sitter-Projects\tree-sitter-cmake\tree-sitter\_deps\_project_options-subbuild\CMakeFiles\fd868777cd4625c6ff5763955147c2e8\_project_options-populate-configure.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\ethandav\OneDrive - Intel Corporation\Documents\Tree-Sitter-Projects\tree-sitter-cmake\tree-sitter\_deps\_project_options-subbuild\CMakeFiles\fd868777cd4625c6ff5763955147c2e8\_project_options-populate-build.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\ethandav\OneDrive - Intel Corporation\Documents\Tree-Sitter-Projects\tree-sitter-cmake\tree-sitter\_deps\_project_options-subbuild\CMakeFiles\fd868777cd4625c6ff5763955147c2e8\_project_options-populate-install.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\ethandav\OneDrive - Intel Corporation\Documents\Tree-Sitter-Projects\tree-sitter-cmake\tree-sitter\_deps\_project_options-subbuild\CMakeFiles\fd868777cd4625c6ff5763955147c2e8\_project_options-populate-test.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\ethandav\OneDrive - Intel Corporation\Documents\Tree-Sitter-Projects\tree-sitter-cmake\tree-sitter\_deps\_project_options-subbuild\CMakeFiles\429d6a6468228ab691ffb25433d1f4c1\_project_options-populate-complete.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\ethandav\OneDrive - Intel Corporation\Documents\Tree-Sitter-Projects\tree-sitter-cmake\tree-sitter\_deps\_project_options-subbuild\CMakeFiles\ae1e7b1de313d13b1f0cf994463da667\_project_options-populate.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\ethandav\OneDrive - Intel Corporation\Documents\Tree-Sitter-Projects\tree-sitter-cmake\tree-sitter\_deps\_project_options-subbuild\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\ethandav\OneDrive - Intel Corporation\Documents\Tree-Sitter-Projects\tree-sitter-cmake\tree-sitter\_deps\_project_options-subbuild\CMakeFiles\_project_options-populate" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{5925174C-B574-3CFF-8A0E-EBB68F890F98}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

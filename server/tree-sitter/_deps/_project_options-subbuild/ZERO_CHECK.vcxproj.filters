@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\ethandav\OneDrive - Intel Corporation\Documents\Tree-Sitter-Projects\tree-sitter-cmake\tree-sitter\_deps\_project_options-subbuild\CMakeFiles\ae1e7b1de313d13b1f0cf994463da667\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{5925174C-B574-3CFF-8A0E-EBB68F890F98}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
