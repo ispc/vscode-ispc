@@ -149,6 +149,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetDir)\*.*" "$(SolutionDir)..\..\..\client-vscode\server\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
