@@ -16,15 +16,13 @@ namespace ispc_languageserver
     public interface IAbstractSyntaxTreeManager
     {
         public abstract void Initialize();
-        public abstract void ParseDocument(TextDocumentItem document);
+        public abstract void ParseDocument(DocumentInfo documentInfo);
     };
 
     public class Definition
     {
-        public Range Range;
-        public DocumentUri DocumentUri { get; set; }
-        public string Name { get; set; }
-        public string Text;
+        public Range? Range;
+        public string? Identifier { get; set; }
     }
 
     internal class AbstractSyntaxTreeManager : IAbstractSyntaxTreeManager
@@ -43,16 +41,17 @@ namespace ispc_languageserver
             language = TSMethods.ts_parser_language(parser);
         }
 
-        public void ParseDocument(TextDocumentItem document)
+        public void ParseDocument(DocumentInfo documentInfo)
         {
-            BuildSyntaxTree(document.Text);
+            BuildSyntaxTree(documentInfo);
+            LoadDefinitions(documentInfo);
         }
 
-        public void BuildSyntaxTree(string source)
+        public void BuildSyntaxTree(DocumentInfo documentInfo)
         {
             // Convert document text to c-style string
-            IntPtr cstr = Marshal.StringToCoTaskMemAnsi(source);
-            uint length = (uint)source.Length;
+            IntPtr cstr = Marshal.StringToCoTaskMemAnsi(documentInfo.Document.Text);
+            uint length = (uint)documentInfo.Document.Text.Length;
 
             // Parse c string to Syntax Tree
             IntPtr tree = TSMethods.ts_parser_parse_string(
@@ -63,18 +62,19 @@ namespace ispc_languageserver
             );
             trees.Add(tree);
 
-            TSNode root_node = TSMethods.ts_tree_root_node(tree);
-            LoadDefinitions(root_node,source);
-
-            foreach(Definition definition in Definitions)
-            {
-                Console.Error.WriteLine("[tree-sitter] - Definition: "+definition.Text);
-            }
+            documentInfo.Ast = tree;
 
         }
 
-        private void LoadDefinitions(TSNode node, string source)
+        private void LoadDefinitions(DocumentInfo documentInfo)
         {
+            if(documentInfo.Definitions.Any())
+            {
+                documentInfo.Definitions.Clear();
+            }
+
+            TSNode root_node = TSMethods.ts_tree_root_node(documentInfo.Ast);
+
             String queryStr = "(declaration (init_declarator declarator: (identifier) @identifier))";
             IntPtr queryCstr = Marshal.StringToCoTaskMemAnsi(queryStr);
             IntPtr error_offset = IntPtr.Zero;
@@ -87,16 +87,25 @@ namespace ispc_languageserver
                 ref error_type 
                 );
             IntPtr cursor = TSMethods.ts_query_cursor_new();
-            TSMethods.ts_query_cursor_exec(cursor, query, node);
+            TSMethods.ts_query_cursor_exec(cursor, query, root_node);
 
             TSQueryMatch match = new TSQueryMatch();
             unsafe
             {
-            while(TSMethods.ts_query_cursor_next_match(cursor, ref match) == 1)
-            {
-                Console.Error.WriteLine($"[tree-sitter] - Match found {match.captures->node.ToString()}");
-                PrintNodeText(match.captures->node,source);
+                while(TSMethods.ts_query_cursor_next_match(cursor, ref match) == 1)
+                {
+                    Definition definition = new Definition();
+                    definition.Range = GetNodeRange(match.captures->node);
+                    definition.Identifier = GetNodeText(match.captures->node,documentInfo.Document.Text);
+
+                    documentInfo.Definitions.Add(definition);
+                }
             }
+
+            Console.Error.WriteLine("[tree-sitter] Definitions Found in Document:");
+            foreach(Definition definition in documentInfo.Definitions)
+            {
+                Console.Error.WriteLine($"  -Idenfitifer: {definition.Identifier} at Line {definition.Range.Start.Line + 1}");
             }
 
         }
@@ -105,7 +114,6 @@ namespace ispc_languageserver
         {
             TSPoint StartPoint = TSMethods.ts_node_start_point(node);
             TSPoint EndPoint = TSMethods.ts_node_end_point(node);
-
 
             var range = new Range(
                 (int)StartPoint.row,
@@ -135,7 +143,18 @@ namespace ispc_languageserver
 
             IntPtr NodeType = TSMethods.ts_node_type(node);
             string NodeTypeStr = Marshal.PtrToStringAnsi(NodeType);
-            Console.Error.WriteLine("[tree-sitter] - Node Type: "+NodeTypeStr+" | Node Text: \n" + nodeText + "\n\n");
+            Console.Error.WriteLine("[tree-sitter] - Node Type: "+NodeTypeStr+" | Node Text: " + nodeText);
+        }
+
+        private static string GetNodeText(TSNode node, string document)
+        {
+            uint StartOffset = TSMethods.ts_node_start_byte(node);
+            uint EndOffset = TSMethods.ts_node_end_byte(node);
+
+            uint textLength = EndOffset - StartOffset;
+            string nodeText = document.Substring((int)StartOffset, (int)textLength);
+
+            return nodeText;
         }
     }
 }
