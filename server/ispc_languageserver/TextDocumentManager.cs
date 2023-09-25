@@ -23,6 +23,22 @@ namespace ispc_languageserver
         public ConcurrentQueue<TextDocumentItem> _queue { get; set; }
     }
 
+    public class DocumentInfo
+    {
+        public DocumentUri Uri { get; set; }
+        public IntPtr Ast { get; set; }
+        public TextDocumentItem Document { get; set; }
+        public List<Definition> Definitions { get; set; }
+
+        public DocumentInfo(TextDocumentItem document)
+        {
+            Uri = document.Uri;
+            Document = document;
+            Definitions = new List<Definition>();
+        }
+
+    }
+
     public class TextDocumentManager : ITextDocumentManager
     {
         private readonly IAbstractSyntaxTreeManager _syntaxTrees;
@@ -32,6 +48,7 @@ namespace ispc_languageserver
         public IReadOnlyDictionary<DocumentUri, string[]> AllLines => _allLines;
         public ConcurrentQueue<TextDocumentItem>? _queue { get; set; }
         public event EventHandler<TextDocumentChangedEventArgs>? Changed;
+        public Dictionary<DocumentUri, DocumentInfo> Documents = new Dictionary<DocumentUri, DocumentInfo>();
 
         public TextDocumentManager(IAbstractSyntaxTreeManager syntaxTrees)
         {
@@ -53,10 +70,11 @@ namespace ispc_languageserver
             // signature help is a little easier.
             _allLines[document.Uri] = document.Text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
 
+            Documents.Add(document.Uri, new DocumentInfo(document));
+
             OnChanged(document);
             Console.Error.WriteLine($"[ispc] - Opened Document at: {document.Uri}");
-            Validate(document);
-            _syntaxTrees.ParseDocument(document);
+            Validate(Documents[document.Uri]);
         }
 
         public void Change(DocumentUri uri, int? version, string text)
@@ -89,20 +107,23 @@ namespace ispc_languageserver
 
             // Replace TextDocumentItem
             _all[index] = newDocument;
+            Documents[uri].Document = newDocument;
             Console.Error.WriteLine("[ispc] - Document Changed");
-            Validate(_all[index]);
+            Validate(Documents[uri]);
         }
 
-        private void Validate(TextDocumentItem document, bool forceEnqueue = false)
+        private void Validate(DocumentInfo documentInfo, bool forceEnqueue = false)
         {
-            if (document == null || _queue == null)
+            if (documentInfo.Document == null || _queue == null)
                 return;
             // Check if document is already queued for validation by the compiler
-            if (forceEnqueue == false && Enumerable.Contains(_queue, document, new DocumentComparer()))
+            if (forceEnqueue == false && Enumerable.Contains(_queue, documentInfo.Document, new DocumentComparer()))
                 return;
 
+            _syntaxTrees.ParseDocument(documentInfo);
+
             Console.Error.WriteLine("[ispc] - Queuing Document for Validation");
-            _queue.Enqueue(document);
+            _queue.Enqueue(documentInfo.Document);
         }
 
         public void Remove(DocumentUri uri)
