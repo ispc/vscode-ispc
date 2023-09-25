@@ -15,12 +15,12 @@ Sample language server is implemented in C#.
 
 # How to run locally
 * `cd server` to move the server folder.
-* `msbuild /t:Restore SampleServer.sln` to restore nuget packages.
-* `msbuild SampleServer.sln` to build the server.
+* `msbuild /t:Restore ispc_languageserver.sln` to restore nuget packages.
+* `msbuild ispc_languageserver.sln` to build the server.
 * `cd ../client` to move the client folder.
 * `npm install` to initialize the extension.
 * open `client` folder in VS Code.
 * 'Ctrl+Shift+B' to build the client and watch files.
 * In the Debug viewlet, run 'Launch Extension' from drop-down to launch the extension and attach to the extension.
-* create a file `test.txt`, and type `typescript`. You should see a validation error.
+* create a file `test.ispc`, and type `test`. You should see a validation error.
 * to debug the server use external debugger such as Visual Studio.
