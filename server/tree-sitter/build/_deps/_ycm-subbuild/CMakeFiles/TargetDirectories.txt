@@ -1,0 +1,3 @@
+C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_ycm-subbuild/CMakeFiles/_ycm-populate.dir
+C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_ycm-subbuild/CMakeFiles/ALL_BUILD.dir
+C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_ycm-subbuild/CMakeFiles/ZERO_CHECK.dir
