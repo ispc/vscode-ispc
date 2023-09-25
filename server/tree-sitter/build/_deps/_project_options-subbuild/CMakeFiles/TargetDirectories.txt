@@ -1,0 +1,3 @@
+C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_project_options-subbuild/CMakeFiles/_project_options-populate.dir
+C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_project_options-subbuild/CMakeFiles/ALL_BUILD.dir
+C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_project_options-subbuild/CMakeFiles/ZERO_CHECK.dir

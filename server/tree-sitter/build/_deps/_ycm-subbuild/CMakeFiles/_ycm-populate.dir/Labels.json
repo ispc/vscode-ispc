@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_ycm-subbuild/CMakeFiles/_ycm-populate"
+		},
+		{
+			"file" : "C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_ycm-subbuild/CMakeFiles/c85b1c842ea82c529244cec47b68e80d/_ycm-populate.rule"
+		},
+		{
+			"file" : "C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_ycm-subbuild/CMakeFiles/7c37a3c8c6c0074955f6413a90d1ac49/_ycm-populate-complete.rule"
+		},
+		{
+			"file" : "C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_ycm-subbuild/CMakeFiles/97faacbecefd0786470a5e5d800d0e0c/_ycm-populate-build.rule"
+		},
+		{
+			"file" : "C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_ycm-subbuild/CMakeFiles/97faacbecefd0786470a5e5d800d0e0c/_ycm-populate-configure.rule"
+		},
+		{
+			"file" : "C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_ycm-subbuild/CMakeFiles/97faacbecefd0786470a5e5d800d0e0c/_ycm-populate-download.rule"
+		},
+		{
+			"file" : "C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_ycm-subbuild/CMakeFiles/97faacbecefd0786470a5e5d800d0e0c/_ycm-populate-install.rule"
+		},
+		{
+			"file" : "C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_ycm-subbuild/CMakeFiles/97faacbecefd0786470a5e5d800d0e0c/_ycm-populate-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_ycm-subbuild/CMakeFiles/97faacbecefd0786470a5e5d800d0e0c/_ycm-populate-patch.rule"
+		},
+		{
+			"file" : "C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_ycm-subbuild/CMakeFiles/97faacbecefd0786470a5e5d800d0e0c/_ycm-populate-test.rule"
+		},
+		{
+			"file" : "C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_ycm-subbuild/CMakeFiles/97faacbecefd0786470a5e5d800d0e0c/_ycm-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"_ycm-populate"
+		],
+		"name" : "_ycm-populate"
+	}
+}

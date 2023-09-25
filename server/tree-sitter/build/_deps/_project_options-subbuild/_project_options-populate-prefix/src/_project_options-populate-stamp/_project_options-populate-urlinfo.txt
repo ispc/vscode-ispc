@@ -1,0 +1,12 @@
+# This is a generated file and its contents are an internal implementation detail.
+# The download step will be re-executed if anything in this file changes.
+# No other meaning or use of this file is supported.
+
+method=url
+command=C:/Program Files/CMake/bin/cmake.exe;-P;C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_project_options-subbuild/_project_options-populate-prefix/src/_project_options-populate-stamp/download-_project_options-populate.cmake;COMMAND;C:/Program Files/CMake/bin/cmake.exe;-P;C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_project_options-subbuild/_project_options-populate-prefix/src/_project_options-populate-stamp/verify-_project_options-populate.cmake;COMMAND;C:/Program Files/CMake/bin/cmake.exe;-P;C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_project_options-subbuild/_project_options-populate-prefix/src/_project_options-populate-stamp/extract-_project_options-populate.cmake
+source_dir=C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_project_options-src
+work_dir=C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps
+url(s)=https://github.com/aminya/project_options/archive/refs/tags/v0.26.3.zip
+hash=
+no_extract=
+

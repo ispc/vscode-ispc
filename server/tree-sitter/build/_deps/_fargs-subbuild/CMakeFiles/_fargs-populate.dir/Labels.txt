@@ -1,0 +1,14 @@
+# Target labels
+ _fargs-populate
+# Source files and their labels
+C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_fargs-subbuild/CMakeFiles/_fargs-populate
+C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_fargs-subbuild/CMakeFiles/4329bc47b7ce781c4dc9d766701a1304/_fargs-populate.rule
+C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_fargs-subbuild/CMakeFiles/25d6fd90090acc3d6567a80f188f61e5/_fargs-populate-complete.rule
+C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_fargs-subbuild/CMakeFiles/d756ef4fbc0dea92ee5e4591904b010f/_fargs-populate-build.rule
+C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_fargs-subbuild/CMakeFiles/d756ef4fbc0dea92ee5e4591904b010f/_fargs-populate-configure.rule
+C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_fargs-subbuild/CMakeFiles/d756ef4fbc0dea92ee5e4591904b010f/_fargs-populate-download.rule
+C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_fargs-subbuild/CMakeFiles/d756ef4fbc0dea92ee5e4591904b010f/_fargs-populate-install.rule
+C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_fargs-subbuild/CMakeFiles/d756ef4fbc0dea92ee5e4591904b010f/_fargs-populate-mkdir.rule
+C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_fargs-subbuild/CMakeFiles/d756ef4fbc0dea92ee5e4591904b010f/_fargs-populate-patch.rule
+C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_fargs-subbuild/CMakeFiles/d756ef4fbc0dea92ee5e4591904b010f/_fargs-populate-test.rule
+C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_fargs-subbuild/CMakeFiles/d756ef4fbc0dea92ee5e4591904b010f/_fargs-populate-update.rule
