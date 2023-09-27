@@ -20,6 +20,7 @@ namespace ispc_languageserver
         public abstract void Add(TextDocumentItem document);
         public abstract void Change(DocumentUri uri, int? version, string text);
         public abstract void Remove(DocumentUri uri);
+        public abstract Location GetLocation(DefinitionParams request);
         public ConcurrentQueue<TextDocumentItem> _queue { get; set; }
     }
 
@@ -124,6 +125,12 @@ namespace ispc_languageserver
 
             Console.Error.WriteLine("[ispc] - Queuing Document for Validation");
             _queue.Enqueue(documentInfo.Document);
+        }
+
+        public Location GetLocation(DefinitionParams request)
+        {
+            Location location = new Location();
+            return location;
         }
 
         public void Remove(DocumentUri uri)
