@@ -35,7 +35,7 @@ namespace ispc_languageserver
                 }
             };
 
-            var location = _documents.GetLocation(request.TextDocument.Uri);
+            var location = _documents.GetLocation(request);
 
             return new LocationOrLocationLinks(dummyLocation);
         }
