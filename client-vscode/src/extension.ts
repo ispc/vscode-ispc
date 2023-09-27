@@ -7,7 +7,20 @@
 
 import * as path from "path";
 
-import { workspace, Disposable, ExtensionContext } from "vscode";
+import {
+    workspace,
+    Disposable,
+    ExtensionContext,
+    languages,
+    TextDocument,
+    Position,
+    CancellationToken,
+    Definition,
+    Location,
+    Range,
+    ProviderResult,
+    window
+} from "vscode";
 import {
     LanguageClient,
     LanguageClientOptions,
@@ -69,7 +82,38 @@ export function activate(context: ExtensionContext) {
     client.trace = Trace.Verbose;
     let disposable = client.start();
 
+    context.subscriptions.push(registerDefinitionProvider(client));
     // Push the disposable to the context's subscriptions so that the
     // client can be deactivated on extension deactivation
     context.subscriptions.push(disposable);
 }
+
+function registerDefinitionProvider(client: LanguageClient): Disposable {
+	return languages.registerDefinitionProvider(
+		{ scheme: 'file', language: 'ispc' },
+		{
+			provideDefinition(
+				document: TextDocument,
+				position: Position,
+				token: CancellationToken
+			): ProviderResult<Definition> {
+				return client.sendRequest<Location[]>(
+					'textDocument/definition',
+					client.code2ProtocolConverter.asTextDocumentPositionParams(document, position),
+					token
+				).then((locations: Location[]) => {
+                    const [firstLocation] = locations;
+                    const uri = firstLocation.uri;
+                    const range = firstLocation.range;
+
+                    window.showTextDocument(uri, {
+                        selection: range
+                    });
+
+                    return locations;
+				});
+			}
+		}
+	)
+}
+
