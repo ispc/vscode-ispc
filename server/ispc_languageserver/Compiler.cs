@@ -241,6 +241,7 @@ namespace ispc_languageserver
                 case "warning":
                     return DiagnosticSeverity.Warning;
                 case "error":
+                case "fatal error":
                     return DiagnosticSeverity.Error;
                 default:
                     return DiagnosticSeverity.Information;
@@ -262,7 +263,7 @@ namespace ispc_languageserver
             // Group 4 = Column
             // Group 5 = Severity
             // Group 6 = Message
-            Regex rx = new Regex(@"^((.*):(\d+):(\d+):\s+(Performance Warning|Warning|Error|warning|error):\s+(.*))$",
+            Regex rx = new Regex(@"^((.*):(\d+):(\d+):\s+(Performance Warning|Warning|Error|warning|error|Fatal Error):\s+(.*))$",
                 RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
             MatchCollection matches = rx.Matches(args.Output);
