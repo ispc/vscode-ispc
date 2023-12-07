@@ -18,6 +18,9 @@
         "Snippets"
     ],
     "main": "./out/src/extension",
+    "activationEvents": [
+        "onLanguage:ispc"
+    ],
     "extensionKind": [
         "workspace",
         "ui"
@@ -181,28 +184,6 @@
                 "editor.autoClosingQuotes": "always",
                 "editor.autoSurround": "brackets"
             }
-        },
-        "commands": [
-            {
-                "command": "ispc.compileDebug",
-                "title": "Compile ISPC - Debug"
-            }
-        ],
-        "keybindings": [
-            {
-                "command": "ispc.compileDebug",
-                "key": "ctrl+shift+c",
-                "mac": "cmd+shift+c",
-                "when": "editorTextFocus"
-            }
-        ],
-        "menus":{
-            "editor/context": [
-                {
-                    "command": "ispc.compileDebug",
-                    "when": "editorLangId == 'ispc'"
-                }
-            ]
         },
         "breakpoints": [
             {
