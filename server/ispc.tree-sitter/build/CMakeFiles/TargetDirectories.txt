@@ -1,3 +1,0 @@
-C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/ispc.tree-sitter/build/CMakeFiles/ispc.tree-sitter.dir
-C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/ispc.tree-sitter/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/ispc.tree-sitter/build/CMakeFiles/ZERO_CHECK.dir
