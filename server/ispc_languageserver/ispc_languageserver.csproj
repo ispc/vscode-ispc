@@ -28,7 +28,7 @@
   </Target>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="mkdir &quot;$(SolutionDir)..\client-vscode\server\&quot;&#xD;&#xA;msbuild &quot;$(SolutionDir)\tree-sitter\build\tree_sitter.vcxproj&quot;&#xD;&#xA;msbuild &quot;$(SolutionDir)\ispc.tree-sitter\build\ispc.tree-sitter.sln&quot;" />
+    <Exec Command="mkdir &quot;$(SolutionDir)..\client-vscode\server\&quot;" />
   </Target>
 
 </Project>
