@@ -1,4 +1,0 @@
-include(RunCMake)
-
-run_cmake(AddInstallRPATHSupport_DEPENDS)
-run_cmake(AddInstallRPATHSupport_target_append_install_rpath)

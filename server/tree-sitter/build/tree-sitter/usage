@@ -1,5 +1,0 @@
-# The package tree-sitter provides the following CMake targets:
-
-    find_package(tree-sitter CONFIG REQUIRED)
-    target_link_libraries(main PRIVATE  tree-sitter::project_options tree-sitter::project_warnings tree-sitter::tree_sitter)
-  
