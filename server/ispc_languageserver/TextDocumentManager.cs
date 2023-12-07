@@ -47,7 +47,7 @@ namespace ispc_languageserver
         public IReadOnlyList<TextDocumentItem> All => _all;
         private readonly Dictionary<DocumentUri,string[]> _allLines = new Dictionary<DocumentUri, string[]>();
         public IReadOnlyDictionary<DocumentUri, string[]> AllLines => _allLines;
-        public ConcurrentQueue<TextDocumentItem>? _queue { get; set; }
+        public ConcurrentQueue<TextDocumentItem> _queue { get; set; }
         public event EventHandler<TextDocumentChangedEventArgs>? Changed;
         public Dictionary<DocumentUri, DocumentInfo> Documents = new Dictionary<DocumentUri, DocumentInfo>();
 
@@ -150,7 +150,7 @@ namespace ispc_languageserver
 
         private class DocumentComparer : IEqualityComparer<TextDocumentItem>
         {
-            public bool Equals(TextDocumentItem x, TextDocumentItem y)
+            public bool Equals(TextDocumentItem? x, TextDocumentItem? y)
             {
                 if (Object.ReferenceEquals(x, y)) return true;
 
