@@ -33,7 +33,7 @@ namespace ispc_languageserver
         public List<Definition> Definitions = new List<Definition>();
 
         public void Initialize() {
-            [DllImport("ispc.tree-sitter.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+            [DllImport("ispc.tree-sitter", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
             static extern IntPtr tree_sitter_ispc();
         
             parser = TSMethods.ts_parser_new();
