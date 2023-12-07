@@ -1,8 +1,0 @@
-cmake_minimum_required(VERSION 3.12)
-project(${RunCMake_TEST} NONE)
-set(YCM_DIR "${YCM_BINARY_DIR}")
-find_package(YCM REQUIRED NO_DEFAULT_PATH)
-if(NOT "${YCM_CONFIG}" STREQUAL "${YCM_BINARY_DIR}/YCMConfig.cmake")
-  message(FATAL_ERROR "Wrong YCM detected")
-endif()
-include(${RunCMake_TEST}.cmake)

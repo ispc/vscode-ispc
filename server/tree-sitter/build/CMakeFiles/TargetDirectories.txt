@@ -1,6 +1,0 @@
-C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/CMakeFiles/tree_sitter.dir
-C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/CMakeFiles/UNINSTALL.dir
-C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/CMakeFiles/INSTALL.dir
-C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/CMakeFiles/ZERO_CHECK.dir
-C:/Users/ethandav/OneDrive - Intel Corporation/Documents/GitHub/vscode-ispc/server/tree-sitter/build/_deps/_project_options-build/CMakeFiles/INSTALL.dir
