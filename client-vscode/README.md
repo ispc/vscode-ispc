@@ -46,7 +46,7 @@ These features are activated in files with the extensions "\*.ispc" and '\*.isph
 
 * Initial release.
 
-### Author:
+### Authors:
 Pete Brubaker, Intel&reg;
 Ethan Davis, Intel&reg;
 
