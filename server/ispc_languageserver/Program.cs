@@ -4,10 +4,10 @@ namespace ispc_languageserver
 {
     internal class Program
     {
-        private static void Main(string[] args)
+        private static async Task Main(string[] args)
         {
             App app = new App();
-            app.StartAsync().Wait();
+            await app.StartAsync();
         }
     }
 }

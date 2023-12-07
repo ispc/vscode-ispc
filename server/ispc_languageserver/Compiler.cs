@@ -16,6 +16,7 @@ using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
+using System.Linq.Expressions;
 
 namespace ispc_languageserver
 {
@@ -38,7 +39,7 @@ namespace ispc_languageserver
     {
         public class CompletedArgs
         {
-            public string? Output;
+            public string Output = string.Empty;
             public DocumentUri? DocumentUri;
         }
 
@@ -46,14 +47,12 @@ namespace ispc_languageserver
         private readonly ILanguageServerConfiguration _configuration;
         private readonly ITextDocumentManager _documentManager;
         private IspcSettings _ispcSettings;
-        private ILogger _logger;
-        private ProcessStartInfo _startInfo;
+        private ProcessStartInfo? _startInfo;
         private ConcurrentQueue<TextDocumentItem>? _documentQueue;
         private static Thread? _compilerThread;
         private bool _isRunning = false;
-        private bool _configured = false;
 
-        public List<Diagnostic> _diagnostics;
+        public List<Diagnostic> _diagnostics = new List<Diagnostic>();
 
         public Compiler(
             ILanguageServerFacade languageServer,
@@ -105,13 +104,22 @@ namespace ispc_languageserver
             Console.Error.WriteLine($"[ispc] - Max Number of Problems: {_ispcSettings.maxNumberOfProblems}");
             Console.Error.WriteLine("[ispc] - Compiler Settings Updated");
 
-            UpdateStartInfo();
-
-            _configured = true;
+            try
+            {
+                UpdateStartInfo();
+            }
+            catch( Exception ex )
+            {
+                Console.Error.WriteLine($"[ispc] - Error updating compiler settings: {ex.Message}");
+            }
         }
 
         private void UpdateStartInfo()
         {
+            if(_ispcSettings.compilerPath == null)
+            {
+                throw new Exception("Compiler path not specified.");
+            }
             _startInfo = new ProcessStartInfo(_ispcSettings.compilerPath);
             _startInfo.Arguments = $"--arch={_ispcSettings.compilerArchitecture} --cpu={_ispcSettings.compilerCPU} --target={_ispcSettings.compilerTarget} --target-os={_ispcSettings.compilerTargetOS} -O3 -o - -";
             _startInfo.WindowStyle = ProcessWindowStyle.Hidden;
@@ -121,20 +129,23 @@ namespace ispc_languageserver
             _startInfo.RedirectStandardInput = true;
         }
 
-        public async void CompilerProc()
+        public void CompilerProc()
         {
             while(_isRunning)
             {
-                TextDocumentItem doc = null;
-                while(_documentQueue.TryDequeue(out doc) == false)
+                TextDocumentItem? doc = null;
+                if(_documentQueue != null)
                 {
-                    Thread.Sleep(30);
+                    while(_documentQueue.TryDequeue(out doc) == false)
+                    {
+                        Thread.Sleep(30);
+                    }
                 }
 
                 if(doc != null && _startInfo != null)
                 {
                     // create a new process
-                    Process compilerProc = new Process();
+                    Process? compilerProc = new Process();
                     compilerProc.StartInfo = _startInfo;
 
                     // compile the file
@@ -276,7 +287,7 @@ namespace ispc_languageserver
 
                 DiagnosticRelatedInformation r = new DiagnosticRelatedInformation
                 {
-                    Location = new Location { Range = range, Uri = args.DocumentUri },
+                    Location = new Location { Range = range, Uri = args.DocumentUri ?? "" },
                     Message = GetInfo(args.Output, matches, i).Trim(),
                 };
 
@@ -294,7 +305,7 @@ namespace ispc_languageserver
 
             var diagParams = new PublishDiagnosticsParams
             {
-                Uri = args.DocumentUri,
+                Uri = args.DocumentUri ?? "",
                 Diagnostics = diagnostics,
             };
 

@@ -37,6 +37,8 @@ namespace ispc_languageserver
 
             var location = _documents.GetLocation(request);
 
+            await Console.Error.WriteLineAsync("[ispc] - Recieved definition request.");
+
             return new LocationOrLocationLinks(dummyLocation);
         }
     }

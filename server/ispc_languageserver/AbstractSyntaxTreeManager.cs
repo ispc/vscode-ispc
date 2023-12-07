@@ -105,7 +105,10 @@ namespace ispc_languageserver
             Console.Error.WriteLine("[tree-sitter] Definitions Found in Document:");
             foreach(Definition definition in documentInfo.Definitions)
             {
-                Console.Error.WriteLine($"  -Idenfitifer: {definition.Identifier} at Line {definition.Range.Start.Line + 1}");
+                if(definition.Range != null)
+                {
+                    Console.Error.WriteLine($"  -Idenfitifer: {definition.Identifier} at Line {definition.Range.Start.Line + 1}");
+                }
             }
 
         }
@@ -129,8 +132,11 @@ namespace ispc_languageserver
         {
             // Print tree for debug purposes
             IntPtr str = TSMethods.ts_node_string(node);
-            string newStr = Marshal.PtrToStringAnsi((IntPtr)str);
-            Console.Error.WriteLine("[Tree-Sitter] - Printing Node: " + newStr);
+            if(str != IntPtr.Zero)
+            {
+                string? newStr = Marshal.PtrToStringAnsi((IntPtr)str);
+                Console.Error.WriteLine("[Tree-Sitter] - Printing Node: " + newStr);
+            }
         }
 
         private static void PrintNodeText(TSNode node, string document)
@@ -142,8 +148,11 @@ namespace ispc_languageserver
             string nodeText = document.Substring((int)StartOffset, (int)textLength);
 
             IntPtr NodeType = TSMethods.ts_node_type(node);
-            string NodeTypeStr = Marshal.PtrToStringAnsi(NodeType);
-            Console.Error.WriteLine("[tree-sitter] - Node Type: "+NodeTypeStr+" | Node Text: " + nodeText);
+            if(NodeType != IntPtr.Zero)
+            {
+                string? NodeTypeStr = Marshal.PtrToStringAnsi(NodeType);
+                Console.Error.WriteLine("[tree-sitter] - Node Type: "+NodeTypeStr+" | Node Text: " + nodeText);
+            }
         }
 
         private static string GetNodeText(TSNode node, string document)
