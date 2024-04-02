@@ -1,0 +1,128 @@
+
+<!doctype HTML>
+<head>
+  <title>Tree-sitter Highlighting</title>
+  <style>
+    body {
+      font-family: monospace
+    }
+    .line-number {
+      user-select: none;
+      text-align: right;
+      color: rgba(27,31,35,.3);
+      padding: 0 10px;
+    }
+    .line {
+      white-space: pre;
+    }
+  </style>
+</head>
+<body>
+
+<table>
+<tr><td class=line-number>1</td><td class=line><span style='font-style: italic;color: #8a8a8a'>/*</span>
+</td></tr>
+<tr><td class=line-number>2</td><td class=line><span style='font-style: italic;color: #8a8a8a'>  Copyright (c) 2010-2023, Intel Corporation</span>
+</td></tr>
+<tr><td class=line-number>3</td><td class=line><span style='font-style: italic;color: #8a8a8a'></span>
+</td></tr>
+<tr><td class=line-number>4</td><td class=line><span style='font-style: italic;color: #8a8a8a'>  SPDX-License-Identifier: BSD-3-Clause</span>
+</td></tr>
+<tr><td class=line-number>5</td><td class=line><span style='font-style: italic;color: #8a8a8a'>*/</span>
+</td></tr>
+<tr><td class=line-number>6</td><td class=line>
+</td></tr>
+<tr><td class=line-number>7</td><td class=line><span style='color: #005f5f'>static</span> <span style='color: #005f5f'>inline</span> <span style='color: #005f5f'>int</span> <span style='color: #005fd7'>mandel</span>(<span style='color: #005f5f'>float</span> c_re, <span style='color: #005f5f'>float</span> c_im, <span style='color: #005f5f'>int</span> count) {
+</td></tr>
+<tr><td class=line-number>8</td><td class=line>    <span style='color: #005f5f'>float</span> z_re <span style='font-weight: bold;color: #4e4e4e'>=</span> c_re, z_im <span style='font-weight: bold;color: #4e4e4e'>=</span> c_im;
+</td></tr>
+<tr><td class=line-number>9</td><td class=line>    <span style='color: #005f5f'>int</span> i;
+</td></tr>
+<tr><td class=line-number>10</td><td class=line>    for (i <span style='font-weight: bold;color: #4e4e4e'>=</span> <span style='font-weight: bold;color: #875f00'>0</span>; i <span style='font-weight: bold;color: #4e4e4e'>&lt;</span> count; <span style='font-weight: bold;color: #4e4e4e'>++</span>i) {
+</td></tr>
+<tr><td class=line-number>11</td><td class=line>        if (z_re <span style='font-weight: bold;color: #4e4e4e'>*</span> z_re <span style='font-weight: bold;color: #4e4e4e'>+</span> z_im <span style='font-weight: bold;color: #4e4e4e'>*</span> z_im <span style='font-weight: bold;color: #4e4e4e'>&gt;</span> <span style='font-weight: bold;color: #875f00'>4.</span>)
+</td></tr>
+<tr><td class=line-number>12</td><td class=line>            <span style='color: #5f00d7'>break</span>;
+</td></tr>
+<tr><td class=line-number>13</td><td class=line>
+</td></tr>
+<tr><td class=line-number>14</td><td class=line>        <span style='color: #005f5f'>float</span> new_re <span style='font-weight: bold;color: #4e4e4e'>=</span> z_re<span style='font-weight: bold;color: #4e4e4e'>*</span>z_re <span style='font-weight: bold;color: #4e4e4e'>-</span> z_im<span style='font-weight: bold;color: #4e4e4e'>*</span>z_im;
+</td></tr>
+<tr><td class=line-number>15</td><td class=line>        <span style='color: #005f5f'>float</span> new_im <span style='font-weight: bold;color: #4e4e4e'>=</span> <span style='font-weight: bold;color: #875f00'>2.f</span> <span style='font-weight: bold;color: #4e4e4e'>*</span> z_re <span style='font-weight: bold;color: #4e4e4e'>*</span> z_im;
+</td></tr>
+<tr><td class=line-number>16</td><td class=line>        <span style='color: #5f00d7'>unmasked</span> {
+</td></tr>
+<tr><td class=line-number>17</td><td class=line>            z_re <span style='font-weight: bold;color: #4e4e4e'>=</span> c_re <span style='font-weight: bold;color: #4e4e4e'>+</span> new_re;
+</td></tr>
+<tr><td class=line-number>18</td><td class=line>            z_im <span style='font-weight: bold;color: #4e4e4e'>=</span> c_im <span style='font-weight: bold;color: #4e4e4e'>+</span> new_im;
+</td></tr>
+<tr><td class=line-number>19</td><td class=line>        }
+</td></tr>
+<tr><td class=line-number>20</td><td class=line>    }
+</td></tr>
+<tr><td class=line-number>21</td><td class=line>
+</td></tr>
+<tr><td class=line-number>22</td><td class=line>    <span style='color: #5f00d7'>return</span> i;
+</td></tr>
+<tr><td class=line-number>23</td><td class=line>}
+</td></tr>
+<tr><td class=line-number>24</td><td class=line>
+</td></tr>
+<tr><td class=line-number>25</td><td class=line><span style='color: #005f5f'>export</span> <span style='color: #005f5f'>void</span> <span style='color: #005fd7'>mandelbrot_ispc</span>(<span style='color: #005f5f'>uniform</span> <span style='color: #005f5f'>float</span> x0, <span style='color: #005f5f'>uniform</span> <span style='color: #005f5f'>float</span> y0,
+</td></tr>
+<tr><td class=line-number>26</td><td class=line>                            <span style='color: #005f5f'>uniform</span> <span style='color: #005f5f'>float</span> x1, <span style='color: #005f5f'>uniform</span> <span style='color: #005f5f'>float</span> y1,
+</td></tr>
+<tr><td class=line-number>27</td><td class=line>                            <span style='color: #005f5f'>uniform</span> <span style='color: #005f5f'>int</span> width, <span style='color: #005f5f'>uniform</span> <span style='color: #005f5f'>int</span> height,
+</td></tr>
+<tr><td class=line-number>28</td><td class=line>                            <span style='color: #005f5f'>uniform</span> <span style='color: #005f5f'>int</span> maxIterations,
+</td></tr>
+<tr><td class=line-number>29</td><td class=line>                            <span style='color: #005f5f'>uniform</span> <span style='color: #005f5f'>int</span> output[])
+</td></tr>
+<tr><td class=line-number>30</td><td class=line>{
+</td></tr>
+<tr><td class=line-number>31</td><td class=line>    <span style='color: #005f5f'>float</span> dx <span style='font-weight: bold;color: #4e4e4e'>=</span> (x1 <span style='font-weight: bold;color: #4e4e4e'>-</span> x0) / width;
+</td></tr>
+<tr><td class=line-number>32</td><td class=line>    <span style='color: #005f5f'>float</span> dy <span style='font-weight: bold;color: #4e4e4e'>=</span> (y1 <span style='font-weight: bold;color: #4e4e4e'>-</span> y0) / height;
+</td></tr>
+<tr><td class=line-number>33</td><td class=line>
+</td></tr>
+<tr><td class=line-number>34</td><td class=line>    for (<span style='color: #005f5f'>uniform</span> <span style='color: #005f5f'>int</span> j <span style='font-weight: bold;color: #4e4e4e'>=</span> <span style='font-weight: bold;color: #875f00'>0</span>; j <span style='font-weight: bold;color: #4e4e4e'>&lt;</span> height; j<span style='font-weight: bold;color: #4e4e4e'>++</span>) {
+</td></tr>
+<tr><td class=line-number>35</td><td class=line>        <span style='font-style: italic;color: #8a8a8a'>// Note that we&#39;ll be doing programCount computations in parallel,</span>
+</td></tr>
+<tr><td class=line-number>36</td><td class=line>        <span style='font-style: italic;color: #8a8a8a'>// so increment i by that much.  This assumes that width evenly</span>
+</td></tr>
+<tr><td class=line-number>37</td><td class=line>        <span style='font-style: italic;color: #8a8a8a'>// divides programCount.</span>
+</td></tr>
+<tr><td class=line-number>38</td><td class=line>        foreach (i <span style='font-weight: bold;color: #4e4e4e'>=</span> <span style='font-weight: bold;color: #875f00'>0</span> <span style='font-weight: bold;color: #4e4e4e'>...</span> width) {
+</td></tr>
+<tr><td class=line-number>39</td><td class=line>            <span style='font-style: italic;color: #8a8a8a'>// Figure out the position on the complex plane to compute the</span>
+</td></tr>
+<tr><td class=line-number>40</td><td class=line>            <span style='font-style: italic;color: #8a8a8a'>// number of iterations at.  Note that the x values are</span>
+</td></tr>
+<tr><td class=line-number>41</td><td class=line>            <span style='font-style: italic;color: #8a8a8a'>// different across different program instances, since its</span>
+</td></tr>
+<tr><td class=line-number>42</td><td class=line>            <span style='font-style: italic;color: #8a8a8a'>// initializer incorporates the value of the programIndex</span>
+</td></tr>
+<tr><td class=line-number>43</td><td class=line>            <span style='font-style: italic;color: #8a8a8a'>// variable.</span>
+</td></tr>
+<tr><td class=line-number>44</td><td class=line>            <span style='color: #005f5f'>float</span> x <span style='font-weight: bold;color: #4e4e4e'>=</span> x0 <span style='font-weight: bold;color: #4e4e4e'>+</span> i <span style='font-weight: bold;color: #4e4e4e'>*</span> dx;
+</td></tr>
+<tr><td class=line-number>45</td><td class=line>            <span style='color: #005f5f'>float</span> y <span style='font-weight: bold;color: #4e4e4e'>=</span> y0 <span style='font-weight: bold;color: #4e4e4e'>+</span> j <span style='font-weight: bold;color: #4e4e4e'>*</span> dy;
+</td></tr>
+<tr><td class=line-number>46</td><td class=line>
+</td></tr>
+<tr><td class=line-number>47</td><td class=line>            <span style='color: #005f5f'>int</span> index <span style='font-weight: bold;color: #4e4e4e'>=</span> j <span style='font-weight: bold;color: #4e4e4e'>*</span> width <span style='font-weight: bold;color: #4e4e4e'>+</span> i;
+</td></tr>
+<tr><td class=line-number>48</td><td class=line>            output[index] <span style='font-weight: bold;color: #4e4e4e'>=</span> <span style='color: #005fd7'>mandel</span>(x, y, maxIterations);
+</td></tr>
+<tr><td class=line-number>49</td><td class=line>        }
+</td></tr>
+<tr><td class=line-number>50</td><td class=line>    }
+</td></tr>
+<tr><td class=line-number>51</td><td class=line>}
+</td></tr>
+</table>
+
+</body>
+
