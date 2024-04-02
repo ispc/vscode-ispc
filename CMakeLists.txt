@@ -42,7 +42,7 @@ endif()
 
 
 execute_process(COMMAND git submodule update --remote --merge
-                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/path/to/submodule)
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tree-sitter/.git)
 
 configure_file(
     ${CMAKE_SOURCE_DIR}/tree-sitter-CMakeLists.txt
