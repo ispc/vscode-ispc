@@ -69,3 +69,24 @@ if(MSBUILD_RESULT EQUAL 0)
 else()
     message(FATAL_ERROR "MSBuild build failed:\n${MSBUILD_OUTPUT}")
 endif()
+
+# ispc.tree-sitter GRAMMAR BUILD =========================================
+file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/ispc.tree-sitter/build)
+execute_process(
+    COMMAND ${CMAKE_COMMAND} -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE -S ${CMAKE_SOURCE_DIR}/ispc.tree-sitter -B ${CMAKE_SOURCE_DIR}/ispc.tree-sitter/build
+)
+
+set(SOLUTION_FILE "${CMAKE_SOURCE_DIR}/ispc.tree-sitter/build/ispc.tree-sitter.sln")
+set(MSBUILD_COMMAND "MSBuild.exe" "${SOLUTION_FILE}" "/p:Configuration=Release")
+
+execute_process(
+    COMMAND ${MSBUILD_COMMAND}
+    RESULT_VARIABLE MSBUILD_RESULT
+    OUTPUT_VARIABLE MSBUILD_OUTPUT
+)
+
+if(MSBUILD_RESULT EQUAL 0)
+    message(STATUS "MSBuild build succeeded:\n${MSBUILD_OUTPUT}")
+else()
+    message(FATAL_ERROR "MSBuild build failed:\n${MSBUILD_OUTPUT}")
+endif()
