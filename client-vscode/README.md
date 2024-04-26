@@ -53,3 +53,4 @@ Ethan Davis, Intel&reg;
 pete.brubaker@intel.com
 
 [@pbrubaker](https://twitter.com/pbrubaker)
+[@ispc_updates](https://twitter.com/ispc_updates)
