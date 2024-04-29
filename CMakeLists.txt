@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 3.8)
 
+find_program(MSBUILD_EXECUTABLE NAMES MSBuild.exe)
+if(MSBUILD_EXECUTABLE)
+    message(STATUS "MSBuild found at ${MSBUILD_EXECUTABLE}")
+else()
+    message(FATAL_ERROR "MSBuild not found. Please ensure it is installed and on the PATH.")
+endif()
+
 # LANGUAGE SERVER BUILD =========================================
 project(ispc_languageserver)
 
@@ -44,51 +51,77 @@ endif()
 execute_process(COMMAND git submodule update --remote --merge
                 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tree-sitter/.git)
 
-configure_file(
-    ${CMAKE_SOURCE_DIR}/tree-sitter-CMakeLists.txt
-    ${CMAKE_SOURCE_DIR}/tree-sitter/CMakeLists.txt
-    COPYONLY
-)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    execute_process(
+        COMMAND make
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tree-sitter
+        RESULT_VARIABLE make_result
+        OUTPUT_VARIABLE make_output
+    )
 
-file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/tree-sitter/build)
-execute_process(
-    COMMAND ${CMAKE_COMMAND} -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE -S ${CMAKE_SOURCE_DIR}/tree-sitter -B ${CMAKE_SOURCE_DIR}/tree-sitter/build
-)
-
-set(SOLUTION_FILE "${CMAKE_SOURCE_DIR}/tree-sitter/build/tree-sitter.sln")
-set(MSBUILD_COMMAND "MSBuild.exe" "${SOLUTION_FILE}" "/p:Configuration=Release")
-
-execute_process(
-    COMMAND ${MSBUILD_COMMAND}
-    RESULT_VARIABLE MSBUILD_RESULT
-    OUTPUT_VARIABLE MSBUILD_OUTPUT
-)
-
-if(MSBUILD_RESULT EQUAL 0)
-    message(STATUS "MSBuild build succeeded:\n${MSBUILD_OUTPUT}")
+    if(NOT make_result EQUAL 0)
+        message(FATAL_ERROR "Make failed: ${make_output}")
+    endif()
 else()
-    message(FATAL_ERROR "MSBuild build failed:\n${MSBUILD_OUTPUT}")
+    configure_file(
+        ${CMAKE_SOURCE_DIR}/tree-sitter-CMakeLists.txt
+        ${CMAKE_SOURCE_DIR}/tree-sitter/CMakeLists.txt
+        COPYONLY
+    )
+
+    file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/tree-sitter/build)
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE -S ${CMAKE_SOURCE_DIR}/tree-sitter -B ${CMAKE_SOURCE_DIR}/tree-sitter/build
+    )
+
+    set(SOLUTION_FILE "${CMAKE_SOURCE_DIR}/tree-sitter/build/tree-sitter.sln")
+    set(MSBUILD_COMMAND "MSBuild.exe" "${SOLUTION_FILE}" "/p:Configuration=Release")
+
+    execute_process(
+        COMMAND ${MSBUILD_COMMAND}
+        RESULT_VARIABLE MSBUILD_RESULT
+        OUTPUT_VARIABLE MSBUILD_OUTPUT
+    )
+
+    if(MSBUILD_RESULT EQUAL 0)
+        message(STATUS "MSBuild build succeeded:\n${MSBUILD_OUTPUT}")
+    else()
+        message(FATAL_ERROR "MSBuild build failed:\n${MSBUILD_OUTPUT}")
+    endif()
 endif()
 
 # ispc.tree-sitter GRAMMAR BUILD =========================================
-file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/ispc.tree-sitter/build)
-execute_process(
-    COMMAND ${CMAKE_COMMAND} -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE -S ${CMAKE_SOURCE_DIR}/ispc.tree-sitter -B ${CMAKE_SOURCE_DIR}/ispc.tree-sitter/build
-)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    execute_process(
+        COMMAND make
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/ispc.tree-sitter
+        RESULT_VARIABLE make_result
+        OUTPUT_VARIABLE make_output
+    )
 
-set(SOLUTION_FILE "${CMAKE_SOURCE_DIR}/ispc.tree-sitter/build/ispc.tree-sitter.sln")
-set(MSBUILD_COMMAND "MSBuild.exe" "${SOLUTION_FILE}" "/p:Configuration=Release")
-
-execute_process(
-    COMMAND ${MSBUILD_COMMAND}
-    RESULT_VARIABLE MSBUILD_RESULT
-    OUTPUT_VARIABLE MSBUILD_OUTPUT
-)
-
-if(MSBUILD_RESULT EQUAL 0)
-    message(STATUS "MSBuild build succeeded:\n${MSBUILD_OUTPUT}")
+    if(NOT make_result EQUAL 0)
+        message(FATAL_ERROR "Make failed: ${make_output}")
+    endif()
 else()
-    message(FATAL_ERROR "MSBuild build failed:\n${MSBUILD_OUTPUT}")
+    file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/ispc.tree-sitter/build)
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE -S ${CMAKE_SOURCE_DIR}/ispc.tree-sitter -B ${CMAKE_SOURCE_DIR}/ispc.tree-sitter/build
+    )
+
+    set(SOLUTION_FILE "${CMAKE_SOURCE_DIR}/ispc.tree-sitter/build/ispc.tree-sitter.sln")
+    set(MSBUILD_COMMAND "MSBuild.exe" "${SOLUTION_FILE}" "/p:Configuration=Release")
+
+    execute_process(
+        COMMAND ${MSBUILD_COMMAND}
+        RESULT_VARIABLE MSBUILD_RESULT
+        OUTPUT_VARIABLE MSBUILD_OUTPUT
+    )
+
+    if(MSBUILD_RESULT EQUAL 0)
+        message(STATUS "MSBuild build succeeded:\n${MSBUILD_OUTPUT}")
+    else()
+        message(FATAL_ERROR "MSBuild build failed:\n${MSBUILD_OUTPUT}")
+    endif()
 endif()
 
 # VS CODE EXTENSION
