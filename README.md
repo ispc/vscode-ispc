@@ -14,10 +14,9 @@ The language server is located in the 'server' folder.
 Sample language server is implemented in C#.
 
 # How to run locally
-* `cd server` to move the server folder.
-* `msbuild /t:Restore ispc_languageserver.sln` to restore nuget packages.
-* `msbuild ispc_languageserver.sln` to build the server.
-* `cd ../client` to move the client folder.
+* The build process uses CMake and MSBuild. Make sure MSBuild is accessible on $PATH
+* Run `cmake ..` from a build directory off root.
+* `cd ../client-vscode` to move the client folder.
 * `npm install` to initialize the extension.
 * open `client` folder in VS Code.
 * 'Ctrl+Shift+B' to build the client and watch files.
