@@ -145,8 +145,3 @@ else()
         message(FATAL_ERROR "MSBuild build failed:\n${MSBUILD_OUTPUT}")
     endif()
 endif()
-
-# VS CODE EXTENSION
-execute_process(
-    COMMAND "npm install --prefix ${CMAKE_SOURCE_DIR}/client-vscode"
-)
