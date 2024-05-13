@@ -26,3 +26,6 @@ tree-sitter-ispc
     `LICENSE`, `.ispc` files in `examples/` are taken from the ISPC repository
     and are licensed under BSD3 (examples could be removed or referred to ISPC
     repo examples).
+
+### Authors:
+Fabian Wermelinger
