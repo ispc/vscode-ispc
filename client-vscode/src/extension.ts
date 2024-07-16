@@ -79,7 +79,7 @@ export function activate(context: ExtensionContext) {
     // Create the language client and start the client.
     const client = new LanguageClient("ispc", "ISPC Language Server", serverOptions, clientOptions);
     client.registerProposedFeatures();
-    client.trace = Trace.Verbose;
+    //client.trace = Trace.Verbose;
     let disposable = client.start();
 
     // Push the disposable to the context's subscriptions so that the
