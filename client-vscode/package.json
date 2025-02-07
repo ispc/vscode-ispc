@@ -248,7 +248,7 @@
         "typescript": "^5.5.2"
     },
     "dependencies": {
-        "vscode-languageclient": "^7.0.0-next.8",
+        "vscode-languageclient": "^9.0.1",
         "vscode-languageserver-protocol": "^3.16.0-next.6"
     }
 }
