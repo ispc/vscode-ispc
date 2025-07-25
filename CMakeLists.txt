@@ -34,7 +34,7 @@ project(ispc_languageserver)
 
 set(SOLUTION_FILE "${CMAKE_SOURCE_DIR}/server/ispc_languageserver.sln")
 
-set(MSBUILD_RESTORE_COMMAND "${MSBUILD_EXECUTABLE}" "${SOLUTION_FILE}" "/t:Restore")
+set(MSBUILD_RESTORE_COMMAND "${MSBUILD_EXECUTABLE}" "${SOLUTION_FILE}" "/t:Restore" "/p:Platform=Any CPU")
 
 execute_process(
     COMMAND ${MSBUILD_RESTORE_COMMAND}
@@ -48,7 +48,7 @@ else()
     message(FATAL_ERROR "MSBuild NuGet package restore failed:\n${MSBUILD_RESTORE_OUTPUT}")
 endif()
 
-set(MSBUILD_COMMAND "${MSBUILD_EXECUTABLE}" "${SOLUTION_FILE}" "/p:Configuration=Release")
+set(MSBUILD_COMMAND "${MSBUILD_EXECUTABLE}" "${SOLUTION_FILE}" "/p:Configuration=Release" "/p:Platform=Any CPU")
 
 execute_process(
     COMMAND ${MSBUILD_COMMAND}
