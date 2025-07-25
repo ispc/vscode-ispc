@@ -5,13 +5,13 @@
     "license": "MIT",
     "version": "1.2.0",
     "repository": {
-      "type": "git",
-      "url": "https://github.com/ispc/ispc"
+        "type": "git",
+        "url": "https://github.com/ispc/ispc"
     },
     "icon": "images/ispc-icon.png",
     "publisher": "intel-corporation",
     "engines": {
-        "vscode": "^1.8.0"
+        "vscode": "^1.82.0"
     },
     "categories": [
         "Programming Languages",
@@ -107,7 +107,7 @@
                         "xehpc-x16",
                         "xehpc-x32",
                         "xelpg-x8",
-"                        xelpg-x16"
+                        "xelpg-x16"
                     ],
                     "default": "host",
                     "description": "The target setting of the compiler used for edit time validation of source files (warnings/errors.)"
@@ -244,11 +244,11 @@
     },
     "devDependencies": {
         "@types/node": "^22",
-        "@types/vscode": "^1.99.0",
+        "@types/vscode": "^1.82.0",
+        "@vscode/vsce": "^3.6.0",
         "typescript": "^5.8.2"
     },
     "dependencies": {
-        "vscode-languageclient": "^9.0.1",
-        "vscode-languageserver-protocol": "^3.16.0-next.6"
+        "vscode-languageclient": "^9.0.1"
     }
 }
