@@ -1,0 +1,70 @@
+name: Build VSIX
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: client-vscode/package-lock.json
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Build native components
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+
+    - name: Install npm dependencies
+      working-directory: client-vscode
+      run: npm ci
+
+    - name: Compile TypeScript
+      working-directory: client-vscode
+      run: npm run compile
+
+    - name: Package VSIX
+      working-directory: client-vscode
+      run: npx vsce package --no-git-tag-version
+
+    - name: Upload VSIX artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ispc-vsix
+        path: client-vscode/*.vsix
+        retention-days: 30
+
+    - name: Upload VSIX to release
+      if: github.event_name == 'release'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: client-vscode/ispc-1.2.0.vsix
+        asset_name: ispc-vscode-extension.vsix
+        asset_content_type: application/zip
