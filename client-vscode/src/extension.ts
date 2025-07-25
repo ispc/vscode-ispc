@@ -41,7 +41,6 @@ export function activate(context: ExtensionContext) {
     // Construct the path to the ispc_languageserver.dll
     const extensionPath = context.extensionPath;
     const serverDllPath = path.join(extensionPath, 'server', 'ispc_languageserver.dll');
-
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
     let serverOptions: ServerOptions = {
@@ -76,13 +75,13 @@ export function activate(context: ExtensionContext) {
         },
     };
 
-    // Create the language client and start the client.
+    // Create the language client
     const client = new LanguageClient("ispc", "ISPC Language Server", serverOptions, clientOptions);
     client.registerProposedFeatures();
-    //client.trace = Trace.Verbose;
-    let disposable = client.start();
 
-    // Push the disposable to the context's subscriptions so that the
-    // client can be deactivated on extension deactivation
-    context.subscriptions.push(disposable);
+    // Start the client (returns Promise<void>)
+    client.start();
+
+    // Push the client itself to subscriptions for proper disposal
+    context.subscriptions.push(client);
 }
