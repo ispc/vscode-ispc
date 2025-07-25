@@ -2,10 +2,17 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,8 +30,8 @@
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /Y &quot;$(TargetDir)\*.*&quot; &quot;$(SolutionDir)..\client-vscode\server\&quot;" />
-  </Target>
-
+<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <MakeDir Directories="$(SolutionDir)..\client-vscode\server\" />
+  <Exec Command="copy /Y &quot;$(TargetDir)*.*&quot; &quot;$(SolutionDir)..\client-vscode\server\&quot;" />
+</Target>
 </Project>
