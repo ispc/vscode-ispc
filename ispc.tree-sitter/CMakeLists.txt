@@ -23,6 +23,11 @@ DEALINGS IN THE SOFTWARE.]]
 cmake_minimum_required(VERSION 3.20)
 project(ispc.tree-sitter)
 
+# Force Release build for deployment
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED True)
 
