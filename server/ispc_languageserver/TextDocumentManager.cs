@@ -22,6 +22,7 @@ namespace ispc_languageserver
         public abstract void Remove(DocumentUri uri);
         public abstract Location GetLocation(DefinitionParams request);
         public ConcurrentQueue<TextDocumentItem> _queue { get; set; }
+        public Dictionary<DocumentUri, DocumentInfo> Documents { get; }
     }
 
     public class DocumentInfo
@@ -42,19 +43,21 @@ namespace ispc_languageserver
 
     public class TextDocumentManager : ITextDocumentManager
     {
-        private readonly IAbstractSyntaxTreeManager _syntaxTrees;
+        private readonly IAbstractSyntaxTreeManager? _syntaxTrees;
         private readonly List<TextDocumentItem> _all = new List<TextDocumentItem>();
         public IReadOnlyList<TextDocumentItem> All => _all;
         private readonly Dictionary<DocumentUri,string[]> _allLines = new Dictionary<DocumentUri, string[]>();
         public IReadOnlyDictionary<DocumentUri, string[]> AllLines => _allLines;
         public ConcurrentQueue<TextDocumentItem> _queue { get; set; }
         public event EventHandler<TextDocumentChangedEventArgs>? Changed;
-        public Dictionary<DocumentUri, DocumentInfo> Documents = new Dictionary<DocumentUri, DocumentInfo>();
+        public Dictionary<DocumentUri, DocumentInfo> Documents { get; private set; } = new Dictionary<DocumentUri, DocumentInfo>();
 
-        public TextDocumentManager(IAbstractSyntaxTreeManager syntaxTrees)
+        public TextDocumentManager(IAbstractSyntaxTreeManager? syntaxTrees = null)
         {
+            Console.Error.WriteLine("[ispc] - TextDocumentManager constructor called");
             _queue = new ConcurrentQueue<TextDocumentItem>();
             _syntaxTrees = syntaxTrees;
+            Console.Error.WriteLine("[ispc] - TextDocumentManager constructor completed");
         }
 
         public void Add(TextDocumentItem document)
@@ -121,7 +124,7 @@ namespace ispc_languageserver
             if (forceEnqueue == false && Enumerable.Contains(_queue, documentInfo.Document, new DocumentComparer()))
                 return;
 
-            _syntaxTrees.ParseDocument(documentInfo);
+            _syntaxTrees?.ParseDocument(documentInfo);
 
             Console.Error.WriteLine("[ispc] - Queuing Document for Validation");
             _queue.Enqueue(documentInfo.Document);
