@@ -44,7 +44,6 @@ namespace ispc_languageserver
                 )
                .WithHandler<TextDocumentHandler>()
                .WithHandler<DidChangeWatchedFilesHandler>()
-               .WithHandler<DefinitionHandler>()
                .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Trace)))
                .WithServices(
                     services =>
@@ -53,15 +52,14 @@ namespace ispc_languageserver
                             .AddSingleton<ICompiler, Compiler>()
                             .AddSingleton<IAbstractSyntaxTreeManager, AbstractSyntaxTreeManager>()
                             .AddSingleton<ITextDocumentManager, TextDocumentManager>()
-                            .Configure<IspcSettings>("ispc")
-                            ;
+                            .Configure<IspcSettings>("ispc");
                     }
                )
                .WithConfigurationSection("ispc")
                .OnInitialized(
                     async (server, request, response, token) =>
                     {
-                        await Console.Error.WriteLineAsync("[ispc] - Initilized");
+                        await Console.Error.WriteLineAsync("[ispc] - Initialized");
                     }
                 )
                .OnStarted(
@@ -77,6 +75,5 @@ namespace ispc_languageserver
                     }
                 );
         }
-
     }
 }
