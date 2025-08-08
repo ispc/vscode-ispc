@@ -35,27 +35,34 @@ import { Trace, createClientPipeTransport } from "vscode-jsonrpc/node";
 import { createConnection } from "net";
 
 export function activate(context: ExtensionContext) {
-    // The server is implemented in node
-    let serverExe = "dotnet";
+    // The server is implemented in .NET and needs to be run with dotnet
+    let serverExe = 'dotnet';
+    const serverDllPath = path.join(context.extensionPath, 'server', 'ispc_languageserver.dll');
+    let serverArgs: string[] = [serverDllPath];
 
-    // Construct the path to the ispc_languageserver.dll
+    // Extension path for reference
     const extensionPath = context.extensionPath;
-    const serverDllPath = path.join(extensionPath, 'server', 'ispc_languageserver.dll');
+
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
     let serverOptions: ServerOptions = {
-        // run: { command: serverExe, args: ['-lsp', '-d'] },
         run: {
             command: serverExe,
-            args: [serverDllPath],
-            transport: TransportKind.pipe,
+            args: serverArgs,
+            transport: TransportKind.stdio,
+            options: {
+                cwd: extensionPath,
+                env: { ...process.env }
+            }
         },
-        // debug: { command: serverExe, args: ['-lsp', '-d'] }
         debug: {
             command: serverExe,
-            args: [serverDllPath],
-            transport: TransportKind.pipe,
-            runtime: "",
+            args: serverArgs,
+            transport: TransportKind.stdio,
+            options: {
+                cwd: extensionPath,
+                env: { ...process.env }
+            }
         },
     };
 
