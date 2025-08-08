@@ -23,6 +23,7 @@ namespace ispc_languageserver
     public interface ICompiler
     {
         public abstract void Initialize();
+        public abstract void Shutdown();
     };
 
     public class IspcSettings
@@ -50,7 +51,7 @@ namespace ispc_languageserver
         private ProcessStartInfo? _startInfo;
         private ConcurrentQueue<TextDocumentItem>? _documentQueue;
         private static Thread? _compilerThread;
-        private bool _isRunning = false;
+        public bool _isRunning = false;
 
         public List<Diagnostic> _diagnostics = new List<Diagnostic>();
 
@@ -64,64 +65,136 @@ namespace ispc_languageserver
             _languageServer = languageServer;
             _configuration = configuration;
             _documentManager = documentManager;
-            _ispcSettings = ispcSettingsMonitor.CurrentValue;
+
+            // Try to get settings with fallback
+            try
+            {
+                _ispcSettings = ispcSettingsMonitor.CurrentValue ?? new IspcSettings();
+            }
+            catch (Exception)
+            {
+                _ispcSettings = new IspcSettings
+                {
+                    compilerPath = "ispc",
+                    compilerTarget = "host",
+                    maxNumberOfProblems = 100
+                };
+            }
+
             ispcSettingsMonitor.OnChange(DidChangeConfiguration);
         }
 
         public void Initialize()
         {
-            Console.Error.WriteLine("[ispc] - Starting Compiler");
             _documentQueue = _documentManager._queue;
-
-            _compilerThread = new Thread(new ThreadStart(CompilerProc));
+            _compilerThread = new Thread(new ThreadStart(CompilerProc)) { IsBackground = true };
             _compilerThread.Start();
-
             _isRunning = true;
-            Console.Error.WriteLine("[ispc] - Compiler is running");
+            Console.Error.WriteLine("[ispc] - Compiler initialized");
+        }
+
+        public void Shutdown()
+        {
+            _isRunning = false;
+
+            // Wait for compiler thread to finish
+            if (_compilerThread != null && _compilerThread.IsAlive)
+            {
+                _compilerThread.Join(1000); // Wait up to 1 second
+            }
         }
 
         private void DidChangeConfiguration(IspcSettings arg1, string? arg2)
         {
-            Console.Error.WriteLine("[ispc] - Changing ISPC Settings");
             UpdateCompilerArguments();
         }
 
         private void UpdateCompilerArguments()
         {
             var config = _configuration.GetSection("ispc").AsEnumerable();
-            _ispcSettings.compilerArchitecture = config.FirstOrDefault(setting => setting.Key == "ispc:compilerArchitecture").Value;
-            _ispcSettings.compilerCPU = config.FirstOrDefault(setting => setting.Key == "ispc:compilerCPU").Value;
-            _ispcSettings.compilerTarget = config.FirstOrDefault(setting => setting.Key == "ispc:compilerTarget").Value;
-            _ispcSettings.compilerTargetOS = config.FirstOrDefault(setting => setting.Key == "ispc:compilerTargetOS").Value;
-            _ispcSettings.compilerPath = config.FirstOrDefault(setting => setting.Key == "ispc:compilerPath").Value;
-            _ispcSettings.maxNumberOfProblems = int.Parse(config.FirstOrDefault(setting => setting.Key == "ispc:maxNumberOfProblems").Value);
 
-            Console.Error.WriteLine($"[ispc] - Target: {_ispcSettings.compilerTarget}");
-            Console.Error.WriteLine($"[ispc] - OS: {_ispcSettings.compilerTargetOS}");
-            Console.Error.WriteLine($"[ispc] - Architecture: {_ispcSettings.compilerArchitecture}");
-            Console.Error.WriteLine($"[ispc] - CPU: {_ispcSettings.compilerCPU}");
-            Console.Error.WriteLine($"[ispc] - Compiler Path: {_ispcSettings.compilerPath}");
-            Console.Error.WriteLine($"[ispc] - Max Number of Problems: {_ispcSettings.maxNumberOfProblems}");
-            Console.Error.WriteLine("[ispc] - Compiler Settings Updated");
+            var archSetting = config.FirstOrDefault(setting => setting.Key == "ispc:compilerArchitecture");
+            _ispcSettings.compilerArchitecture = archSetting.Value;
 
-            try
+            var cpuSetting = config.FirstOrDefault(setting => setting.Key == "ispc:compilerCPU");
+            _ispcSettings.compilerCPU = cpuSetting.Value;
+
+            var targetSetting = config.FirstOrDefault(setting => setting.Key == "ispc:compilerTarget");
+            _ispcSettings.compilerTarget = targetSetting.Value ?? "host";
+
+            var osSetting = config.FirstOrDefault(setting => setting.Key == "ispc:compilerTargetOS");
+            _ispcSettings.compilerTargetOS = osSetting.Value;
+
+            var pathSetting = config.FirstOrDefault(setting => setting.Key == "ispc:compilerPath");
+            _ispcSettings.compilerPath = pathSetting.Value ?? "ispc";
+
+            var maxProblemsSetting = config.FirstOrDefault(setting => setting.Key == "ispc:maxNumberOfProblems");
+            var maxProblemsStr = maxProblemsSetting.Value ?? "100";
+            if (int.TryParse(maxProblemsStr, out int maxProblems))
             {
-                UpdateStartInfo();
+                _ispcSettings.maxNumberOfProblems = maxProblems;
             }
-            catch( Exception ex )
+            else
             {
-                Console.Error.WriteLine($"[ispc] - Error updating compiler settings: {ex.Message}");
+                _ispcSettings.maxNumberOfProblems = 100;
             }
+
+            UpdateStartInfo();
         }
 
         private void UpdateStartInfo()
         {
-            if(_ispcSettings.compilerPath == null)
+            if (_ispcSettings.compilerPath == null)
             {
-                throw new Exception("Compiler path not specified.");
+                return;
             }
+
+            // Test if compiler exists
+            try
+            {
+                var testProcess = new Process();
+                testProcess.StartInfo = new ProcessStartInfo(_ispcSettings.compilerPath, "--version")
+                {
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                };
+                testProcess.Start();
+                testProcess.WaitForExit(2000); // 2 second timeout
+                testProcess.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"[ispc] - Compiler not found at '{_ispcSettings.compilerPath}': {ex.Message}");
+                Console.Error.WriteLine("[ispc] - Diagnostics disabled. Install ISPC compiler or update ispc.compilerPath setting");
+                return;
+            }
+
             _startInfo = new ProcessStartInfo(_ispcSettings.compilerPath);
-            _startInfo.Arguments = $"--arch={_ispcSettings.compilerArchitecture} --cpu={_ispcSettings.compilerCPU} --target={_ispcSettings.compilerTarget} --target-os={_ispcSettings.compilerTargetOS} -O3 -o - -";
+
+            // Build arguments dynamically based on what's configured
+            var args = new List<string>();
+
+            if (!string.IsNullOrEmpty(_ispcSettings.compilerArchitecture))
+                args.Add($"--arch={_ispcSettings.compilerArchitecture}");
+
+            if (!string.IsNullOrEmpty(_ispcSettings.compilerCPU))
+                args.Add($"--cpu={_ispcSettings.compilerCPU}");
+
+            if (!string.IsNullOrEmpty(_ispcSettings.compilerTarget))
+                args.Add($"--target={_ispcSettings.compilerTarget}");
+
+            if (!string.IsNullOrEmpty(_ispcSettings.compilerTargetOS))
+                args.Add($"--target-os={_ispcSettings.compilerTargetOS}");
+
+            // Always add optimization and output settings
+            args.Add("-O3");
+            args.Add("-o");
+            args.Add("-");
+            args.Add("-");
+
+            _startInfo.Arguments = string.Join(" ", args);
             _startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             _startInfo.UseShellExecute = false;
             _startInfo.RedirectStandardError = true;
@@ -131,18 +204,18 @@ namespace ispc_languageserver
 
         public void CompilerProc()
         {
-            while(_isRunning)
+            while (_isRunning)
             {
                 TextDocumentItem? doc = null;
-                if(_documentQueue != null)
+                if (_documentQueue != null)
                 {
-                    while(_documentQueue.TryDequeue(out doc) == false)
+                    while (_documentQueue.TryDequeue(out doc) == false)
                     {
                         Thread.Sleep(30);
                     }
                 }
 
-                if(doc != null && _startInfo != null)
+                if (doc != null && _startInfo != null)
                 {
                     // create a new process
                     Process? compilerProc = new Process();
@@ -152,12 +225,10 @@ namespace ispc_languageserver
                     try
                     {
                         compilerProc.Start();
-                        Console.Error.WriteLine("[ispc] - compiler started.");
                     }
                     catch (Exception ex)
                     {
-                        Console.Error.WriteLine("[ispc] - unable to start compiler: "+ ex.Message);
-                        Console.Error.WriteLine("[ispc] - For realtime error reporting, ensure location to ISPC is on PATH.");
+                        Console.Error.WriteLine($"[ispc] - Unable to start compiler: {ex.Message}");
                         return;
                     }
 
@@ -175,14 +246,7 @@ namespace ispc_languageserver
                     string stderr = compilerProc.StandardError.ReadToEnd();
                     string stdout = compilerProc.StandardOutput.ReadToEnd();
 
-                    // completed successfully
-                    Console.Error.WriteLine("[ispc] - compiler completed.");
-
-                    // if the compiler reported errors show them in the output
-                    if (stderr.Length > 1)
-                    {
-                        Console.Error.WriteLine("[ispc] - stderr - " + stderr + "\n");
-                    }
+                    Console.Error.WriteLine($"[ispc] - Compiled document: {doc.Uri}");
 
                     CompletedArgs args = new CompletedArgs();
                     args.Output = stderr + stdout;
@@ -261,7 +325,7 @@ namespace ispc_languageserver
 
         private void _compiler_Completed(CompletedArgs args)
         {
-            if ( args.Output == null )
+            if (args.Output == null)
             {
                 return;
             }
@@ -311,7 +375,15 @@ namespace ispc_languageserver
 
 
             // Send the diagnostics to the client
-            _languageServer.TextDocument.PublishDiagnostics(diagParams);
+            try
+            {
+                _languageServer.TextDocument.PublishDiagnostics(diagParams);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"[ispc] - Failed to publish diagnostics: {ex.Message}");
+                // Don't rethrow - this is not critical enough to crash the server
+            }
         }
     }
 }
