@@ -10,9 +10,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.General;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
@@ -28,8 +30,8 @@ namespace ispc_languageserver
         private readonly ILanguageServerConfiguration _configuration;
         private readonly ITextDocumentManager _documents;
 
-        private readonly DocumentSelector _documentSelector = new DocumentSelector(
-            new DocumentFilter {
+        private readonly TextDocumentSelector _documentSelector = new TextDocumentSelector(
+            new TextDocumentFilter {
                 Pattern = "**/*.ispc"
             }
         );
@@ -76,9 +78,19 @@ namespace ispc_languageserver
             return Unit.Task;
         }
 
-        public override Task<Unit> Handle(DidSaveTextDocumentParams notification, CancellationToken token) => Unit.Task;
+        public override Task<Unit> Handle(DidSaveTextDocumentParams notification, CancellationToken token)
+        {
+            // Force revalidation on save to ensure diagnostics are up-to-date
+            if (_documents.Documents.ContainsKey(notification.TextDocument.Uri))
+            {
+                var documentInfo = _documents.Documents[notification.TextDocument.Uri];
+                // Force enqueue even if already queued to ensure fresh compilation
+                _documents._queue.Enqueue(documentInfo.Document);
+            }
+            return Unit.Task;
+        }
 
-        protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability, ClientCapabilities clientCapabilities) => new TextDocumentSyncRegistrationOptions() {
+        protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(TextSynchronizationCapability capability, ClientCapabilities clientCapabilities) => new TextDocumentSyncRegistrationOptions() {
             DocumentSelector = _documentSelector,
             Change = Change,
             Save = new SaveOptions() { IncludeText = true }
