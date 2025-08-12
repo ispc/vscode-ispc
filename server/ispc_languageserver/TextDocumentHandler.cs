@@ -29,6 +29,7 @@ namespace ispc_languageserver
         private readonly ILogger<TextDocumentHandler> _logger;
         private readonly ILanguageServerConfiguration _configuration;
         private readonly ITextDocumentManager _documents;
+        private readonly ILanguageServerFacade _languageServer;
 
         private readonly TextDocumentSelector _documentSelector = new TextDocumentSelector(
             new TextDocumentFilter {
@@ -39,12 +40,14 @@ namespace ispc_languageserver
         public TextDocumentHandler(
             ILogger<TextDocumentHandler> logger,
             ILanguageServerConfiguration configuration,
-            ITextDocumentManager documents
+            ITextDocumentManager documents,
+            ILanguageServerFacade languageServer
             )
         {
             _logger = logger;
             _configuration = configuration;
             _documents = documents;
+            _languageServer = languageServer;
         }
 
         public TextDocumentSyncKind Change { get; } = TextDocumentSyncKind.Full;
@@ -73,6 +76,30 @@ namespace ispc_languageserver
             if (_configuration.TryGetScopedConfiguration(notification.TextDocument.Uri, out var disposable))
             {
                 disposable.Dispose();
+            }
+
+            // Remove document from manager
+            _documents.Remove(notification.TextDocument.Uri);
+            if (_documents.Documents.ContainsKey(notification.TextDocument.Uri))
+            {
+                _documents.Documents.Remove(notification.TextDocument.Uri);
+            }
+
+            // Clear diagnostics for closed document
+            // Publish empty diagnostics to ensure they're cleared from Problems window
+            var diagParams = new PublishDiagnosticsParams
+            {
+                Uri = notification.TextDocument.Uri,
+                Diagnostics = new List<Diagnostic>()
+            };
+
+            try
+            {
+                _languageServer.TextDocument.PublishDiagnostics(diagParams);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to clear diagnostics for closed document");
             }
 
             return Unit.Task;

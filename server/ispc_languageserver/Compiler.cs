@@ -90,7 +90,6 @@ namespace ispc_languageserver
             _compilerThread = new Thread(new ThreadStart(CompilerProc)) { IsBackground = true };
             _compilerThread.Start();
             _isRunning = true;
-            Console.Error.WriteLine("[ispc] - Compiler initialized");
         }
 
         public void Shutdown()
@@ -166,8 +165,6 @@ namespace ispc_languageserver
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"[ispc] - Compiler not found at '{_ispcSettings.compilerPath}': {ex.Message}");
-                Console.Error.WriteLine("[ispc] - Diagnostics disabled. Install ISPC compiler or update ispc.compilerPath setting");
                 return;
             }
 
@@ -188,11 +185,7 @@ namespace ispc_languageserver
             if (!string.IsNullOrEmpty(_ispcSettings.compilerTargetOS))
                 args.Add($"--target-os={_ispcSettings.compilerTargetOS}");
 
-            // Always add optimization and output settings
-            args.Add("-O3");
-            args.Add("-o");
-            args.Add("-");
-            args.Add("-");
+            args.Add("-");           // Read from stdin
 
             _startInfo.Arguments = string.Join(" ", args);
             _startInfo.WindowStyle = ProcessWindowStyle.Hidden;
@@ -200,6 +193,7 @@ namespace ispc_languageserver
             _startInfo.RedirectStandardError = true;
             _startInfo.RedirectStandardOutput = true;
             _startInfo.RedirectStandardInput = true;
+
         }
 
         public void CompilerProc()
@@ -228,9 +222,12 @@ namespace ispc_languageserver
                     }
                     catch (Exception ex)
                     {
-                        Console.Error.WriteLine($"[ispc] - Unable to start compiler: {ex.Message}");
                         return;
                     }
+
+                    // Start reading output streams asynchronously to prevent buffer deadlock
+                    var stderrTask = compilerProc.StandardError.ReadToEndAsync();
+                    var stdoutTask = compilerProc.StandardOutput.ReadToEndAsync();
 
                     // write the file to stdin
                     compilerProc.StandardInput.WriteLine(doc.Text);
@@ -239,14 +236,17 @@ namespace ispc_languageserver
                     compilerProc.StandardInput.Flush();
                     compilerProc.StandardInput.Close();
 
-                    // wait for exit
-                    compilerProc.WaitForExit();
+                    // wait for exit with timeout (30 seconds)
+                    if (!compilerProc.WaitForExit(30000))
+                    {
+                        compilerProc.Kill();
+                        continue;
+                    }
 
                     // collect the output data
-                    string stderr = compilerProc.StandardError.ReadToEnd();
-                    string stdout = compilerProc.StandardOutput.ReadToEnd();
+                    string stderr = stderrTask.Result;
+                    string stdout = stdoutTask.Result;
 
-                    Console.Error.WriteLine($"[ispc] - Compiled document: {doc.Uri}");
 
                     CompletedArgs args = new CompletedArgs();
                     args.Output = stderr + stdout;
@@ -327,6 +327,13 @@ namespace ispc_languageserver
         {
             if (args.Output == null)
             {
+                return;
+            }
+
+            // Check if document is still open before publishing diagnostics
+            if (args.DocumentUri != null && !_documentManager.Documents.ContainsKey(args.DocumentUri))
+            {
+                // Document was closed, don't publish diagnostics
                 return;
             }
 
