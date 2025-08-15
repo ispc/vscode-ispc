@@ -60,7 +60,7 @@ namespace ispc_languageserver
             };
         }
 
-        public async Task<SignatureHelp> Handle(SignatureHelpParams request, CancellationToken cancellationToken)
+        public async Task<SignatureHelp?> Handle(SignatureHelpParams request, CancellationToken cancellationToken)
         {
             await Task.Yield();
 
@@ -129,7 +129,7 @@ namespace ispc_languageserver
 
             var activeSignature = 0; // Default to first overload
             var activeParameter = Math.Max(0, Math.Min(functionContext.ParameterIndex,
-                signatures.Count > 0 ? signatures[activeSignature].Parameters.Count() - 1 : 0));
+                signatures.Count > 0 ? signatures[activeSignature].Parameters?.Count() - 1 ?? 0 : 0));
 
 
             return new SignatureHelp

@@ -23,7 +23,7 @@ namespace ispc_languageserver
             return new DefinitionRegistrationOptions();
         }
 
-        public async Task<LocationOrLocationLinks> Handle(DefinitionParams request, CancellationToken cancellationToken)
+        public async Task<LocationOrLocationLinks?> Handle(DefinitionParams request, CancellationToken cancellationToken)
         {
             var dummyLocation = new Location
             {
