@@ -237,7 +237,7 @@
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
-        "compile": "node ./node_modules/typescript/bin/tsc -p ./"
+        "compile": "tsc -p ./"
     },
     "devDependencies": {
         "@types/node": "^22",

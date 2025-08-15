@@ -34,6 +34,9 @@ namespace ispc_languageserver
         private readonly TextDocumentSelector _documentSelector = new TextDocumentSelector(
             new TextDocumentFilter {
                 Pattern = "**/*.ispc"
+            },
+            new TextDocumentFilter {
+                Pattern = "**/*.isph"
             }
         );
 

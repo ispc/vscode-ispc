@@ -73,12 +73,15 @@ export function activate(context: ExtensionContext) {
             {
                 pattern: "**/*.ispc",
             },
+            {
+                pattern: "**/*.isph",
+            },
         ],
         progressOnInitialization: true,
         synchronize: {
             // Synchronize the setting section 'ispc' to the server
             configurationSection: "ispc",
-            fileEvents: workspace.createFileSystemWatcher("**/*.ispc"),
+            fileEvents: workspace.createFileSystemWatcher("**/*.{ispc,isph}"),
         },
     };
 
