@@ -49,6 +49,10 @@ namespace ispc_languageserver
                     new TextDocumentFilter
                     {
                         Pattern = "**/*.ispc"
+                    },
+                    new TextDocumentFilter
+                    {
+                        Pattern = "**/*.isph"
                     }
                 ),
                 TriggerCharacters = new Container<string>("(", ","),
