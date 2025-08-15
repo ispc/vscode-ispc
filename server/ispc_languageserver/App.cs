@@ -44,6 +44,8 @@ namespace ispc_languageserver
                 )
                .WithHandler<TextDocumentHandler>()
                .WithHandler<DidChangeWatchedFilesHandler>()
+               .WithHandler<CompletionHandler>()
+               .WithHandler<SignatureHelpHandler>()
                .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Trace)))
                .WithServices(
                     services =>
