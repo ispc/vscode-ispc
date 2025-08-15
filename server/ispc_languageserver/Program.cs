@@ -27,7 +27,7 @@ namespace ispc_languageserver
                 }
             }
 
-            Console.Error.WriteLine("[ispc] - Starting language server");
+            await Console.Error.WriteLineAsync("[ispc] - Starting language server");
 
             try
             {
@@ -36,8 +36,8 @@ namespace ispc_languageserver
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"[FATAL] Language server crashed: {ex.Message}");
-                Console.Error.WriteLine($"[FATAL] Stack trace: {ex.StackTrace}");
+                await Console.Error.WriteLineAsync($"[FATAL] Language server crashed: {ex.Message}");
+                await Console.Error.WriteLineAsync($"[FATAL] Stack trace: {ex.StackTrace}");
                 Environment.Exit(1);
             }
         }

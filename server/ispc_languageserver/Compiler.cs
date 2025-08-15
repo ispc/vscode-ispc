@@ -163,7 +163,7 @@ namespace ispc_languageserver
                 testProcess.WaitForExit(2000); // 2 second timeout
                 testProcess.Close();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return;
             }
@@ -220,7 +220,7 @@ namespace ispc_languageserver
                     {
                         compilerProc.Start();
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         return;
                     }
@@ -244,8 +244,8 @@ namespace ispc_languageserver
                     }
 
                     // collect the output data
-                    string stderr = stderrTask.Result;
-                    string stdout = stdoutTask.Result;
+                    string stderr = stderrTask.ConfigureAwait(false).GetAwaiter().GetResult();
+                    string stdout = stdoutTask.ConfigureAwait(false).GetAwaiter().GetResult();
 
 
                     CompletedArgs args = new CompletedArgs();
@@ -331,7 +331,7 @@ namespace ispc_languageserver
             }
 
             // Check if document is still open before publishing diagnostics
-            if (args.DocumentUri != null && !_documentManager.Documents.ContainsKey(args.DocumentUri))
+            if (args.DocumentUri is not null && !_documentManager.Documents.ContainsKey(args.DocumentUri))
             {
                 // Document was closed, don't publish diagnostics
                 return;
