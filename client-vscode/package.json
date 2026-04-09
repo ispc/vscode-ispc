@@ -11,7 +11,7 @@
     "icon": "images/ispc-icon.png",
     "publisher": "intel-corporation",
     "engines": {
-        "vscode": "^1.82.0"
+        "vscode": "^1.110.0"
     },
     "categories": [
         "Programming Languages",
@@ -241,7 +241,7 @@
     },
     "devDependencies": {
         "@types/node": "^25",
-        "@types/vscode": "^1.82.0",
+        "@types/vscode": "^1.110.0",
         "@vscode/vsce": "^3.7.1",
         "typescript": "^6.0.2"
     },
