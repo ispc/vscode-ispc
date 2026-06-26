@@ -93,22 +93,24 @@ else()
 
     file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/tree-sitter/build)
     execute_process(
-        COMMAND ${CMAKE_COMMAND} -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE -S ${CMAKE_SOURCE_DIR}/tree-sitter -B ${CMAKE_SOURCE_DIR}/tree-sitter/build
+        COMMAND ${CMAKE_COMMAND} -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE -DCMAKE_BUILD_TYPE=Release -S ${CMAKE_SOURCE_DIR}/tree-sitter -B ${CMAKE_SOURCE_DIR}/tree-sitter/build
+        RESULT_VARIABLE CMAKE_CONFIGURE_RESULT
     )
 
-    set(SOLUTION_FILE "${CMAKE_SOURCE_DIR}/tree-sitter/build/tree-sitter.sln")
-    set(MSBUILD_COMMAND "${MSBUILD_EXECUTABLE}" "${SOLUTION_FILE}" "/p:Configuration=Release")
+    if(NOT CMAKE_CONFIGURE_RESULT EQUAL 0)
+        message(FATAL_ERROR "CMake configure of tree-sitter failed")
+    endif()
 
     execute_process(
-        COMMAND ${MSBUILD_COMMAND}
-        RESULT_VARIABLE MSBUILD_RESULT
-        OUTPUT_VARIABLE MSBUILD_OUTPUT
+        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tree-sitter/build --config Release
+        RESULT_VARIABLE BUILD_RESULT
+        OUTPUT_VARIABLE BUILD_OUTPUT
     )
 
-    if(MSBUILD_RESULT EQUAL 0)
-        message(STATUS "MSBuild build succeeded:\n${MSBUILD_OUTPUT}")
+    if(BUILD_RESULT EQUAL 0)
+        message(STATUS "tree-sitter build succeeded:\n${BUILD_OUTPUT}")
     else()
-        message(FATAL_ERROR "MSBuild build failed:\n${MSBUILD_OUTPUT}")
+        message(FATAL_ERROR "tree-sitter build failed:\n${BUILD_OUTPUT}")
     endif()
 endif()
 
@@ -127,21 +129,23 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin"
 else()
     file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/ispc.tree-sitter/build)
     execute_process(
-        COMMAND ${CMAKE_COMMAND} -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE -S ${CMAKE_SOURCE_DIR}/ispc.tree-sitter -B ${CMAKE_SOURCE_DIR}/ispc.tree-sitter/build
+        COMMAND ${CMAKE_COMMAND} -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE -DCMAKE_BUILD_TYPE=Release -S ${CMAKE_SOURCE_DIR}/ispc.tree-sitter -B ${CMAKE_SOURCE_DIR}/ispc.tree-sitter/build
+        RESULT_VARIABLE CMAKE_CONFIGURE_RESULT
     )
 
-    set(SOLUTION_FILE "${CMAKE_SOURCE_DIR}/ispc.tree-sitter/build/ispc.tree-sitter.sln")
-    set(MSBUILD_COMMAND "${MSBUILD_EXECUTABLE}" "${SOLUTION_FILE}" "/p:Configuration=Release")
+    if(NOT CMAKE_CONFIGURE_RESULT EQUAL 0)
+        message(FATAL_ERROR "CMake configure of ispc.tree-sitter failed")
+    endif()
 
     execute_process(
-        COMMAND ${MSBUILD_COMMAND}
-        RESULT_VARIABLE MSBUILD_RESULT
-        OUTPUT_VARIABLE MSBUILD_OUTPUT
-    ) 
+        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/ispc.tree-sitter/build --config Release
+        RESULT_VARIABLE BUILD_RESULT
+        OUTPUT_VARIABLE BUILD_OUTPUT
+    )
 
-    if(MSBUILD_RESULT EQUAL 0)
-        message(STATUS "MSBuild build succeeded:\n${MSBUILD_OUTPUT}")
+    if(BUILD_RESULT EQUAL 0)
+        message(STATUS "ispc.tree-sitter build succeeded:\n${BUILD_OUTPUT}")
     else()
-        message(FATAL_ERROR "MSBuild build failed:\n${MSBUILD_OUTPUT}")
+        message(FATAL_ERROR "ispc.tree-sitter build failed:\n${BUILD_OUTPUT}")
     endif()
 endif()
