@@ -5,6 +5,7 @@
         "moduleResolution": "Node16",
         "outDir": "out",
         "lib": ["es2016"],
+        "types": ["node"],
         "sourceMap": true,
         "skipLibCheck": true
     },
