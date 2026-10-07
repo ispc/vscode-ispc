@@ -6,16 +6,18 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: npm-audit-fix
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
+  # Runs updated third-party code (npm ci, tsc), so it gets no write access and no persisted credentials.
   audit-fix:
     runs-on: ubuntu-latest
+    outputs:
+      fixed: ${{ steps.after.outputs.fixed }}
     defaults:
       run:
         working-directory: client-vscode
@@ -23,6 +25,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        persist-credentials: false
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -37,46 +41,76 @@ jobs:
     - name: Audit before fix
       id: before
       run: |
-        npm audit --json > "$RUNNER_TEMP/audit-before.json" || true
-        echo "count=$(jq '.metadata.vulnerabilities.total // 0' "$RUNNER_TEMP/audit-before.json")" >> "$GITHUB_OUTPUT"
+        f="$RUNNER_TEMP/audit-before.json"
+        npm audit --json > "$f" || true
+        if ! jq -e '.metadata.vulnerabilities.total | numbers' "$f" > /dev/null 2>&1; then
+          echo "::error::npm audit did not return a valid report"
+          cat "$f"
+          exit 1
+        fi
+        echo "count=$(jq '.metadata.vulnerabilities.total' "$f")" >> "$GITHUB_OUTPUT"
 
     # Without --force: only in-range updates, so no breaking major bumps of direct deps.
+    # Exits non-zero whenever vulnerabilities remain, so only real npm errors are surfaced.
     - name: Apply npm audit fix
       if: steps.before.outputs.count != '0'
-      run: npm audit fix --ignore-scripts || true
-
-    - name: Detect lockfile changes
-      id: diff
       run: |
-        if git diff --quiet -- package.json package-lock.json; then
-          echo "changed=false" >> "$GITHUB_OUTPUT"
+        log="$RUNNER_TEMP/audit-fix.log"
+        if ! npm audit fix --ignore-scripts > "$log" 2>&1; then
+          if grep -qE '^npm (ERR!|error)' "$log"; then
+            echo "::warning::npm audit fix reported errors; see log below"
+          fi
+        fi
+        cat "$log"
+
+    - name: Audit after fix
+      id: after
+      if: steps.before.outputs.count != '0'
+      env:
+        BEFORE: ${{ steps.before.outputs.count }}
+      run: |
+        f="$RUNNER_TEMP/audit-after.json"
+        npm audit --json > "$f" || true
+        if ! jq -e '.metadata.vulnerabilities.total | numbers' "$f" > /dev/null 2>&1; then
+          echo "::error::npm audit did not return a valid report after fix"
+          cat "$f"
+          exit 1
+        fi
+        after=$(jq '.metadata.vulnerabilities.total' "$f")
+        if [ "$after" -lt "$BEFORE" ] && ! git diff --quiet -- package.json package-lock.json; then
+          echo "fixed=true" >> "$GITHUB_OUTPUT"
         else
-          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "fixed=false" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Verify fixed tree installs and compiles
-      if: steps.diff.outputs.changed == 'true'
+      if: steps.after.outputs.fixed == 'true'
       run: |
         npm ci --ignore-scripts
         npm run compile
 
-    - name: Build PR body
-      if: steps.diff.outputs.changed == 'true'
+    - name: Build PR body and patch
+      if: steps.after.outputs.fixed == 'true'
       run: |
-        npm audit --json > "$RUNNER_TEMP/audit-after.json" || true
+        out="$RUNNER_TEMP/audit-fix-out"
+        mkdir -p "$out"
+        git diff -- package.json package-lock.json > "$out/fix.patch"
         {
           echo "Automated \`npm audit fix\` for vulnerable dependencies that Dependabot did not update."
           echo
           echo "### Fixed"
           jq -r --slurpfile after "$RUNNER_TEMP/audit-after.json" '
-            .vulnerabilities | to_entries[]
-            | select(.key as $k | ($after[0].vulnerabilities | has($k)) | not)
-            | "- `\(.key)` (\(.value.severity)): \([.value.via[] | objects | .title] | unique | join("; "))"
-          ' "$RUNNER_TEMP/audit-before.json"
+            ($after[0].vulnerabilities // {}) as $a
+            | (.vulnerabilities // {}) | to_entries[]
+            | select(.key as $k | $a | has($k) | not)
+            | ([.value.via[] | objects | .title] | unique | join("; ")) as $t
+            | "- `\(.key)` (\(.value.severity)): "
+              + (if $t == "" then "via " + ([.value.via[] | strings] | unique | join(", ")) else $t end)
+          ' "$RUNNER_TEMP/audit-before.json" | grep . || echo "_None_"
           echo
           echo "### Still vulnerable (needs a major bump or \`overrides\`)"
           jq -r '
-            .vulnerabilities | to_entries[]
+            (.vulnerabilities // {}) | to_entries[]
             | "- `\(.key)` (\(.value.severity)) via \([.value.via[] | if type == "string" then . else .name end] | unique | join(", "))"
           ' "$RUNNER_TEMP/audit-after.json" | grep . || echo "_None_"
           echo
@@ -84,13 +118,53 @@ jobs:
           echo '```'
           git diff --stat -- package.json package-lock.json
           echo '```'
-        } > "$RUNNER_TEMP/pr-body.md"
-        cat "$RUNNER_TEMP/pr-body.md" >> "$GITHUB_STEP_SUMMARY"
+        } > "$out/pr-body.md"
+        cat "$out/pr-body.md" >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Upload fix
+      if: steps.after.outputs.fixed == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: audit-fix
+        path: ${{ runner.temp }}/audit-fix-out/
+        retention-days: 1
+
+    - name: Report unfixable vulnerabilities
+      if: steps.before.outputs.count != '0' && steps.after.outputs.fixed != 'true'
+      run: |
+        {
+          echo "### npm audit: vulnerabilities with no in-range fix"
+          echo '```'
+          npm audit || true
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
+
+  # Never runs project code; only applies the verified patch and opens the PR.
+  # AUDIT_FIX_TOKEN (not GITHUB_TOKEN) so the PR triggers build.yml.
+  create-pr:
+    needs: audit-fix
+    if: needs.audit-fix.outputs.fixed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+
+    - name: Download fix
+      uses: actions/download-artifact@v4
+      with:
+        name: audit-fix
+        path: ${{ runner.temp }}/audit-fix
+
+    - name: Apply patch
+      run: git apply "$RUNNER_TEMP/audit-fix/fix.patch"
 
     - name: Create pull request
-      if: steps.diff.outputs.changed == 'true'
       uses: peter-evans/create-pull-request@v7
       with:
+        token: ${{ secrets.AUDIT_FIX_TOKEN }}
         branch: automation/npm-audit-fix
         delete-branch: true
         add-paths: |
@@ -98,11 +172,5 @@ jobs:
           client-vscode/package-lock.json
         commit-message: Fix vulnerable npm dependencies via npm audit fix
         title: Fix vulnerable npm dependencies (npm audit fix)
-        body-path: ${{ runner.temp }}/pr-body.md
+        body-path: ${{ runner.temp }}/audit-fix/pr-body.md
         labels: dependencies, security
-
-    - name: Report unfixable vulnerabilities
-      if: steps.diff.outputs.changed == 'false' && steps.before.outputs.count != '0'
-      run: |
-        echo "### npm audit: vulnerabilities with no in-range fix" >> "$GITHUB_STEP_SUMMARY"
-        npm audit >> "$GITHUB_STEP_SUMMARY" || true
