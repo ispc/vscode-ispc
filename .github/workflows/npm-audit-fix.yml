@@ -1,0 +1,108 @@
+name: npm audit fix
+
+on:
+  schedule:
+    - cron: '0 6 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: npm-audit-fix
+  cancel-in-progress: true
+
+jobs:
+  audit-fix:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client-vscode
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+        cache-dependency-path: client-vscode/package-lock.json
+
+    - name: Install dependencies
+      run: npm ci --ignore-scripts
+
+    - name: Audit before fix
+      id: before
+      run: |
+        npm audit --json > "$RUNNER_TEMP/audit-before.json" || true
+        echo "count=$(jq '.metadata.vulnerabilities.total // 0' "$RUNNER_TEMP/audit-before.json")" >> "$GITHUB_OUTPUT"
+
+    # Without --force: only in-range updates, so no breaking major bumps of direct deps.
+    - name: Apply npm audit fix
+      if: steps.before.outputs.count != '0'
+      run: npm audit fix --ignore-scripts || true
+
+    - name: Detect lockfile changes
+      id: diff
+      run: |
+        if git diff --quiet -- package.json package-lock.json; then
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+        else
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Verify fixed tree installs and compiles
+      if: steps.diff.outputs.changed == 'true'
+      run: |
+        npm ci --ignore-scripts
+        npm run compile
+
+    - name: Build PR body
+      if: steps.diff.outputs.changed == 'true'
+      run: |
+        npm audit --json > "$RUNNER_TEMP/audit-after.json" || true
+        {
+          echo "Automated \`npm audit fix\` for vulnerable dependencies that Dependabot did not update."
+          echo
+          echo "### Fixed"
+          jq -r --slurpfile after "$RUNNER_TEMP/audit-after.json" '
+            .vulnerabilities | to_entries[]
+            | select(.key as $k | ($after[0].vulnerabilities | has($k)) | not)
+            | "- `\(.key)` (\(.value.severity)): \([.value.via[] | objects | .title] | unique | join("; "))"
+          ' "$RUNNER_TEMP/audit-before.json"
+          echo
+          echo "### Still vulnerable (needs a major bump or \`overrides\`)"
+          jq -r '
+            .vulnerabilities | to_entries[]
+            | "- `\(.key)` (\(.value.severity)) via \([.value.via[] | if type == "string" then . else .name end] | unique | join(", "))"
+          ' "$RUNNER_TEMP/audit-after.json" | grep . || echo "_None_"
+          echo
+          echo "### Changes"
+          echo '```'
+          git diff --stat -- package.json package-lock.json
+          echo '```'
+        } > "$RUNNER_TEMP/pr-body.md"
+        cat "$RUNNER_TEMP/pr-body.md" >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Create pull request
+      if: steps.diff.outputs.changed == 'true'
+      uses: peter-evans/create-pull-request@v7
+      with:
+        branch: automation/npm-audit-fix
+        delete-branch: true
+        add-paths: |
+          client-vscode/package.json
+          client-vscode/package-lock.json
+        commit-message: Fix vulnerable npm dependencies via npm audit fix
+        title: Fix vulnerable npm dependencies (npm audit fix)
+        body-path: ${{ runner.temp }}/pr-body.md
+        labels: dependencies, security
+
+    - name: Report unfixable vulnerabilities
+      if: steps.diff.outputs.changed == 'false' && steps.before.outputs.count != '0'
+      run: |
+        echo "### npm audit: vulnerabilities with no in-range fix" >> "$GITHUB_STEP_SUMMARY"
+        npm audit >> "$GITHUB_STEP_SUMMARY" || true
